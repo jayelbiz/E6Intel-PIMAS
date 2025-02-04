@@ -1,0 +1,115 @@
+Project-Specific Instructions for Bolt (E6:12 Intel - PIMAS)
+
+1. Project Overview & Purpose
+E6:12 Intel (PIMAS) is an AI-driven prophetic intelligence system designed to analyze news, media narratives, geopolitical events, and legislative movements through a biblical, prophetic, and intelligence-based lens. The system systematically detects:
+
+Influence, bias, and psyops
+Financial connections & legislative impact
+Spiritual warfare indicators & prophetic alignment
+Coordinated messaging & deception detection
+Geolocation mapping & trend forecasting
+This project is modular and phased, ensuring each component is fully functional before expanding.
+
+2. Core Features & AI-Driven Components
+A. Article & Media Analysis Workflow
+Article Submission & Metadata Extraction
+
+Ingests articles via URL submission, file uploads, or API integration.
+Extracts metadata (title, author, source credibility, publication date).
+Runs AI-based NLP processing to detect keywords, topics, sentiment, and structure.
+AI-Driven Significance Score (Weighted Ranking System)
+
+Assigns a 1-100 Significance Score based on:
+Influence Level (Mainstream vs. Fringe Source)
+Reach & Audience Impact (Corporate, Legislative, Global, Niche)
+Legislative Impact (Does it drive policy?)
+Narrative Control (Does it set ideological direction?)
+Historical Parallels (Echoes past psyops?)
+Financial & Political Beneficiaries
+Alignment with Prophetic Timelines & Biblical Intelligence
+Pros & Cons Evaluation
+
+Pros: Social justice, constitutional alignment, free speech advocacy, economic growth.
+Cons: Legislative overreach, ideological conditioning, financial control, spiritual deception.
+Deep Categorization
+
+Legal & Constitutional Impact (Legislation tracking, overreach detection).
+Spiritual Warfare Perspective (Biblical alignment, deception tracking).
+Financial Beneficiaries & Funding Sources (Corporate & NGO funding analysis).
+Media Syndication & Coordination (Narrative repetition across media).
+Psyops & Narrative Control Detection
+
+Identifies coordinated messaging, emotional manipulation, suppression of dissenting viewpoints.
+AI Metrics & Visualization
+
+Generates heatmaps, network graphs, timeline trends, dashboards for analysis.
+Real-time Automation & Future Expansion
+
+Automated deception detection via NLP-based framing analysis.
+Geolocation mapping of propaganda spread.
+Crowdsourced verification & user intelligence submissions.
+Machine learning-driven trend prediction.
+3. Implementation Strategy
+A. Technical Stack
+Frontend: PrimeReact (Airbnb UI style) + TailwindCSS.
+Backend: Supabase (PostgreSQL for storage, real-time event tracking).
+AI Models: DeepSeek R1 + OpenAI for NLP-based analysis, narrative detection, and event classification.
+APIs & Data Aggregation:
+News & OSINT APIs: Google News, NewsAPI.org, GDELT.
+Social Media Monitoring APIs: Twitter/X API, Telegram Bot API.
+Metadata Verification APIs: WhoisXML API, OpenWeb.
+AI NLP Tools: DeepSeek R1, OpenAI.
+B. Feature Implementation Roadmap
+Phase 1: Article Ingestion & Metadata Extraction
+
+Develop API integrations for Google News, NewsAPI, OSINT feeds.
+Create Supabase database schema for raw articles & metadata.
+Implement validation checks for duplicate or low-quality sources.
+Phase 2: NLP-Based Keyword Analysis & Classification
+
+Use AI NLP models to extract key topics, entities, locations.
+Define classification mapping linking news topics to biblical events.
+Assign confidence scores to AI-generated classifications.
+Phase 3: Event Scoring & Psyops Detection
+
+Develop weighted scoring logic for influence, reach, bias detection.
+Implement AI-based pattern recognition for coordinated messaging.
+Phase 4: AI-Powered Visualization & Geolocation Mapping
+
+Build interactive dashboards, trend analysis graphs.
+Implement geolocation mapping for article-based intelligence.
+
+4. Design & UI/UX Style
+Style: Follow Airbnb.com UI to the pixel or as close as possible.
+Framework: PrimeReact + TailwindCSS.
+Dashboard: Needs to be clean,very compact, lower scale, technical, futuristic, dark-themed (inspired by airbnb UI).
+
+User Interactions:
+Drag-and-drop article uploads.
+Real-time intelligence tracking.
+Search & filter functionality.
+5. Monetization & Scaling Strategy
+Phase 1: MVP Deployment & User Feedback Collection
+Phase 2: AI Enhancements & OSINT API Expansion
+Phase 3: Community-Driven Intelligence Contributions
+Phase 4: Enterprise Licensing & Subscription Model
+Premium Subscriptions: Advanced intelligence reports & AI-driven alerts.
+Enterprise Licensing: Security analysts & investigative journalists.
+Crowdfunding & Donations: Community-funded intelligence operations.
+API Partnerships: OSINT tool integrations.
+6. Security & Data Integrity
+Secure API keys, encrypted user data.
+AI-driven misinformation filtering using cross-validation techniques.
+User access control for different intelligence tiers.
+
+Final Notes for Bolt:
+
+All code-generated prompts must be highly detailed.
+
+Any AI-generated instructions must be repeatable for another AI to execute independently.
+
+Ensure documentation is comprehensive, covering storage, database setup, API logic.
+
+Prioritize AI-assisted deception detection, narrative tracking, and psyops analysis.
+
+Optimize system logic for real-time event scanning & spiritual warfare intelligence.
