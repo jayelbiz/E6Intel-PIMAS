@@ -1,4 +1,5 @@
-import { supabase } from '../supabase'
+import { db } from '../firebase'
+import { collection, addDoc, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
 
 export interface NewsItem {
   id: string
@@ -11,7 +12,7 @@ export interface NewsItem {
   url: string
 }
 
-export async function fetchNews(query?: string): Promise<NewsItem[]> {
+export async function fetchNews(searchQuery?: string): Promise<NewsItem[]> {
   try {
     // Return mock data if no API key is configured
     const apiKey = import.meta.env.VITE_NEWS_API_KEY?.trim()
@@ -21,8 +22,8 @@ export async function fetchNews(query?: string): Promise<NewsItem[]> {
     }
 
     const params = new URLSearchParams()
-    if (query) {
-      params.append('q', query)
+    if (searchQuery) {
+      params.append('q', searchQuery)
     }
 
     const response = await fetch(`/.netlify/functions/fetch-news?${params.toString()}`)
@@ -42,19 +43,17 @@ export async function fetchNews(query?: string): Promise<NewsItem[]> {
 
 export async function saveNewsItem(newsItem: NewsItem) {
   try {
-    const { data, error } = await supabase
-      .from('news_articles')
-      .insert([{
-        title: newsItem.title,
-        url: newsItem.url,
-        classification: newsItem.type,
-        confidence: 0.85, // Default confidence score
-        summary: newsItem.summary,
-        keywords: extractKeywords(newsItem.title + ' ' + newsItem.summary)
-      }])
+    const docRef = await addDoc(collection(db, 'news_articles'), {
+      title: newsItem.title,
+      url: newsItem.url,
+      classification: newsItem.type,
+      confidence: 0.85, // Default confidence score
+      summary: newsItem.summary,
+      keywords: extractKeywords(newsItem.title + ' ' + newsItem.summary),
+      createdAt: new Date()
+    })
 
-    if (error) throw error
-    return data
+    return { id: docRef.id }
   } catch (error) {
     console.error('Error saving news item:', error)
     return null
