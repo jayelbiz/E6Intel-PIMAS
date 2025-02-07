@@ -1,1 +1,21 @@
-/* This file is intentionally empty as all styles are now in theme.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: 59 130 246;
+  --secondary-color: 107 114 128;
+  --background: 249 250 251;
+  --foreground: 17 24 39;
+  --muted: 156 163 175;
+  --accent: 99 102 241;
+}
+
+.dark {
+  --primary-color: 96 165 250;
+  --secondary-color: 156 163 175;
+  --background: 17 24 39;
+  --foreground: 249 250 251;
+  --muted: 107 114 128;
+  --accent: 129 140 248;
+}

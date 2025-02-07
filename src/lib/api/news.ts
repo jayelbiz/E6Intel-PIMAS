@@ -14,7 +14,9 @@ export interface NewsItem {
 export async function fetchNews(query?: string): Promise<NewsItem[]> {
   try {
     // Return mock data if no API key is configured
-    if (!import.meta.env.VITE_NEWS_API_KEY) {
+    const apiKey = import.meta.env.VITE_NEWS_API_KEY?.trim()
+    if (!apiKey) {
+      console.info('Using mock news data - no API key configured')
       return mockNews
     }
 
@@ -23,7 +25,7 @@ export async function fetchNews(query?: string): Promise<NewsItem[]> {
       params.append('q', query)
     }
 
-    const response = await fetch(`/.netlify/functions/fetch-news?${params}`)
+    const response = await fetch(`/.netlify/functions/fetch-news?${params.toString()}`)
     
     if (!response.ok) {
       throw new Error('Failed to fetch news')
@@ -31,7 +33,8 @@ export async function fetchNews(query?: string): Promise<NewsItem[]> {
 
     const data = await response.json()
     return data as NewsItem[]
-  } catch (error) {
+  } catch (error: any) {
+    console.warn('Falling back to mock news data:', error?.message || 'Unknown error')
     console.error('Error fetching news:', error)
     return mockNews
   }
