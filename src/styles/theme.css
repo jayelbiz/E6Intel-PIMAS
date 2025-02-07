@@ -1,0 +1,38 @@
+/* Leaflet Map Styles */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+}
+
+/* Map Controls Z-Index Overrides */
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 5;
+}
+
+.leaflet-popup-pane {
+  z-index: 15;
+}
+
+/* Ensure controls are above map but below UI */
+.leaflet-control-container {
+  position: relative;
+  z-index: 5;
+}
+
+/* Adjust map container padding for sidebar */
+@media (min-width: 1024px) {
+  .map-container {
+    margin-right: 400px;
+  }
+}

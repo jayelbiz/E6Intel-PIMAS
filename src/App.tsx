@@ -1,13 +1,20 @@
 import { BrowserRouter as Router } from 'react-router-dom'
-import { ThemeProvider } from './providers/theme-provider'
+import { PrimeReactProvider } from 'primereact/api'
 import { AppRoutes } from './routes'
+
+const primereactConfig = {
+  ripple: true,
+  inputStyle: 'outlined',
+  buttonStyle: 'outlined',
+  scale: 'compact'
+}
 
 export function App() {
   return (
     <Router>
-      <ThemeProvider defaultTheme="dark" storageKey="e612-theme">
+      <PrimeReactProvider value={primereactConfig}>
         <AppRoutes />
-      </ThemeProvider>
+      </PrimeReactProvider>
     </Router>
   )
 }
