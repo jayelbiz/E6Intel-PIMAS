@@ -14,6 +14,7 @@ import { useToast } from "../../services/toast";
 
 // Images
 import logo from "../../assets/images/logo.svg";
+import googleIcon from "../../assets/images/google.svg";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,7 @@ const Login = () => {
     try {
       const { error } = await signInWithProvider('google');
       if (error) throw error;
-      // No need to navigate or show success here - the callback will handle it
+      // Callback will handle navigation
     } catch (error) {
       showError(
         "Google sign-in failed",
@@ -67,88 +68,103 @@ const Login = () => {
   };
 
   return (
-    <div className="flex align-items-center justify-content-center min-h-screen surface-ground">
-      <ToastComponent />
-      
-      <div className="w-full max-w-30rem p-4">
-        <Card className="shadow-2">
-          <div className="text-center mb-5">
-            <img src={logo} alt="logo" height="50" className="mb-3" />
-            <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
-            <span className="text-600 font-medium">Sign in to continue</span>
+    <div className="auth-page-wrapper pt-5">
+      <div className="auth-page-content">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-8 col-lg-6 col-xl-5">
+              <Card className="mt-4">
+                <div className="text-center mt-2">
+                  <img src={logo} alt="Logo" height={50} className="mb-4" />
+                  <h5 className="text-primary">Welcome Back!</h5>
+                  <p className="text-muted">Sign in to continue to E6 Intel.</p>
+                </div>
+
+                <div className="p-4">
+                  <form onSubmit={formik.handleSubmit} className="p-fluid">
+                    <div className="mb-3">
+                      <span className="p-float-label p-input-icon-right">
+                        <i className="pi pi-envelope" />
+                        <InputText
+                          id="email"
+                          name="email"
+                          value={formik.values.email}
+                          onChange={formik.handleChange}
+                          className={formik.errors.email && formik.touched.email ? 'p-invalid' : ''}
+                        />
+                        <label htmlFor="email">Email</label>
+                      </span>
+                      {formik.errors.email && formik.touched.email && (
+                        <small className="p-error block mt-1">{formik.errors.email}</small>
+                      )}
+                    </div>
+
+                    <div className="mb-3">
+                      <span className="p-float-label">
+                        <Password
+                          id="password"
+                          name="password"
+                          value={formik.values.password}
+                          onChange={formik.handleChange}
+                          toggleMask
+                          className={formik.errors.password && formik.touched.password ? 'p-invalid' : ''}
+                          feedback={false}
+                        />
+                        <label htmlFor="password">Password</label>
+                      </span>
+                      {formik.errors.password && formik.touched.password && (
+                        <small className="p-error block mt-1">{formik.errors.password}</small>
+                      )}
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="float-end">
+                        <Link to="/forgot-password" className="text-muted">
+                          Forgot password?
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="mb-3">
+                      <Button
+                        type="submit"
+                        label="Sign In"
+                        icon="pi pi-user"
+                        className="w-full p-button-primary"
+                        loading={loading}
+                      />
+                    </div>
+
+                    <Divider align="center">
+                      <span className="text-muted text-uppercase">or</span>
+                    </Divider>
+
+                    <div className="mb-3">
+                      <Button
+                        type="button"
+                        label="Sign in with Google"
+                        icon="pi pi-google"
+                        className="w-full p-button-secondary p-button-outlined"
+                        onClick={handleGoogleSignIn}
+                        loading={loading}
+                      />
+                    </div>
+                  </form>
+
+                  <div className="mt-4 text-center">
+                    <p className="mb-0 text-muted">Don't have an account?{' '}
+                      <Link to="/register" className="fw-semibold text-primary text-decoration-underline">
+                        Sign Up
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
-
-          <form onSubmit={formik.handleSubmit} className="p-fluid">
-            <div className="field">
-              <span className="p-float-label p-input-icon-right">
-                <i className="pi pi-envelope" />
-                <InputText
-                  id="email"
-                  name="email"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  className={formik.errors.email && formik.touched.email ? 'p-invalid' : ''}
-                />
-                <label htmlFor="email">Email*</label>
-              </span>
-              {formik.errors.email && formik.touched.email && (
-                <small className="p-error">{formik.errors.email}</small>
-              )}
-            </div>
-
-            <div className="field">
-              <span className="p-float-label">
-                <Password
-                  id="password"
-                  name="password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  toggleMask
-                  className={formik.errors.password && formik.touched.password ? 'p-invalid' : ''}
-                  feedback={false}
-                />
-                <label htmlFor="password">Password*</label>
-              </span>
-              {formik.errors.password && formik.touched.password && (
-                <small className="p-error">{formik.errors.password}</small>
-              )}
-            </div>
-
-            <div className="flex align-items-center justify-content-between mb-5">
-              <div className="flex align-items-center">
-                <Link to="/auth/reset-password" className="font-medium no-underline text-blue-500 cursor-pointer">
-                  Forgot password?
-                </Link>
-              </div>
-              <Link to="/register" className="font-medium no-underline text-blue-500 cursor-pointer">
-                Create account
-              </Link>
-            </div>
-
-            <Button
-              type="submit"
-              label="Sign In"
-              icon="pi pi-user"
-              className="w-full mb-3"
-              loading={loading}
-            />
-
-            <Divider align="center">
-              <span className="text-600 font-medium">OR</span>
-            </Divider>
-
-            <Button
-              type="button"
-              label="Sign in with Google"
-              icon="pi pi-google"
-              severity="secondary"
-              className="w-full p-button-outlined"
-              onClick={handleGoogleSignIn}
-              loading={loading}
-            />
-          </form>
-        </Card>
+        </div>
       </div>
+      <ToastComponent />
     </div>
   );
 };
