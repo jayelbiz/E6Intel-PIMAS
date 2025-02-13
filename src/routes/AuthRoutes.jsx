@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../config/supabase';
 
 // Auth pages
 import Login from '../pages/Authentication/Login';
@@ -12,16 +13,23 @@ import RoleManagement from '../pages/Admin/RoleManagement';
 
 // Handle OAuth callbacks and email verification
 const AuthCallback = () => {
-  const { getSession } = useAuth();
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const { error } = await getSession();
-        if (error) throw error;
-        window.location.href = '/dashboard';
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        
+        // If we have a session, redirect to dashboard
+        if (session) {
+          window.location.href = '/dashboard';
+        } else {
+          // If no session, something went wrong with the OAuth flow
+          throw new Error('Authentication failed. Please try again.');
+        }
       } catch (err) {
+        console.error('Auth callback error:', err);
         setError(err.message);
         setTimeout(() => {
           window.location.href = '/login';
@@ -30,27 +38,51 @@ const AuthCallback = () => {
     };
 
     handleCallback();
-  }, [getSession]);
+  }, []);
 
   if (error) {
     return (
-      <div className="flex align-items-center justify-content-center min-h-screen">
-        <div className="text-center">
-          <i className="pi pi-exclamation-circle text-5xl text-red-500 mb-4"></i>
-          <h2>Authentication Error</h2>
-          <p className="text-600">{error}</p>
-          <p className="text-600">Redirecting to login...</p>
+      <div className="auth-page-wrapper pt-5">
+        <div className="auth-page-content">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-md-8 col-lg-6 col-xl-5 text-center">
+                <div className="card mt-4">
+                  <div className="card-body p-4">
+                    <div className="text-center mt-2">
+                      <i className="pi pi-exclamation-circle text-danger" style={{ fontSize: '5rem' }}></i>
+                      <h2 className="mt-4 fw-semibold">Authentication Error</h2>
+                      <p className="text-muted">{error}</p>
+                      <p className="text-muted">Redirecting to login...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex align-items-center justify-content-center min-h-screen">
-      <div className="text-center">
-        <i className="pi pi-spin pi-spinner text-5xl mb-4"></i>
-        <h2>Completing Authentication</h2>
-        <p className="text-600">Please wait...</p>
+    <div className="auth-page-wrapper pt-5">
+      <div className="auth-page-content">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-8 col-lg-6 col-xl-5 text-center">
+              <div className="card mt-4">
+                <div className="card-body p-4">
+                  <div className="text-center mt-2">
+                    <i className="pi pi-spin pi-spinner" style={{ fontSize: '5rem' }}></i>
+                    <h2 className="mt-4 fw-semibold">Completing Authentication</h2>
+                    <p className="text-muted">Please wait...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -62,33 +94,22 @@ export const PrivateRoute = ({ children, requiredPermissions = [] }) => {
 
   if (loading) {
     return (
-      <div className="flex align-items-center justify-content-center min-h-screen">
-        <i className="pi pi-spin pi-spinner text-4xl"></i>
+      <div className="auth-page-wrapper pt-5">
+        <div className="auth-page-content">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-md-8 col-lg-6 col-xl-5 text-center">
+                <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!user) {
     return <Navigate to="/login" replace />;
-  }
-
-  // Check permissions if required
-  if (requiredPermissions.length > 0) {
-    const hasPermission = requiredPermissions.every(permission =>
-      user.permissions?.includes(permission)
-    );
-
-    if (!hasPermission) {
-      return (
-        <div className="flex align-items-center justify-content-center min-h-screen">
-          <div className="text-center">
-            <i className="pi pi-lock text-5xl text-red-500 mb-4"></i>
-            <h2>Access Denied</h2>
-            <p className="text-600">You don't have permission to access this page.</p>
-          </div>
-        </div>
-      );
-    }
   }
 
   return children;
@@ -100,8 +121,16 @@ export const PublicRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex align-items-center justify-content-center min-h-screen">
-        <i className="pi pi-spin pi-spinner text-4xl"></i>
+      <div className="auth-page-wrapper pt-5">
+        <div className="auth-page-content">
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="col-md-8 col-lg-6 col-xl-5 text-center">
+                <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
