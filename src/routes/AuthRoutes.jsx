@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -9,6 +9,52 @@ import ResetPassword from '../pages/Authentication/ResetPassword';
 import UserProfile from '../pages/Profile/UserProfile';
 import SessionManagement from '../pages/Profile/SessionManagement';
 import RoleManagement from '../pages/Admin/RoleManagement';
+
+// Handle OAuth callbacks and email verification
+const AuthCallback = () => {
+  const { getSession } = useAuth();
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const handleCallback = async () => {
+      try {
+        const { error } = await getSession();
+        if (error) throw error;
+        window.location.href = '/dashboard';
+      } catch (err) {
+        setError(err.message);
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 3000);
+      }
+    };
+
+    handleCallback();
+  }, [getSession]);
+
+  if (error) {
+    return (
+      <div className="flex align-items-center justify-content-center min-h-screen">
+        <div className="text-center">
+          <i className="pi pi-exclamation-circle text-5xl text-red-500 mb-4"></i>
+          <h2>Authentication Error</h2>
+          <p className="text-600">{error}</p>
+          <p className="text-600">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex align-items-center justify-content-center min-h-screen">
+      <div className="text-center">
+        <i className="pi pi-spin pi-spinner text-5xl mb-4"></i>
+        <h2>Completing Authentication</h2>
+        <p className="text-600">Please wait...</p>
+      </div>
+    </div>
+  );
+};
 
 // Auth route wrapper
 export const PrivateRoute = ({ children, requiredPermissions = [] }) => {
@@ -23,7 +69,7 @@ export const PrivateRoute = ({ children, requiredPermissions = [] }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   // Check permissions if required
@@ -61,7 +107,7 @@ export const PublicRoute = ({ children }) => {
   }
 
   if (user) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -112,7 +158,7 @@ export const authRoutes = [
   {
     path: '/admin/roles',
     element: (
-      <PrivateRoute requiredPermissions={['manage_users']}>
+      <PrivateRoute requiredPermissions={['manage_roles']}>
         <RoleManagement />
       </PrivateRoute>
     ),
@@ -122,49 +168,3 @@ export const authRoutes = [
     element: <AuthCallback />,
   },
 ];
-
-// Handle OAuth callbacks and email verification
-const AuthCallback = () => {
-  const { getSession } = useAuth();
-  const [error, setError] = React.useState(null);
-
-  React.useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        const { error } = await getSession();
-        if (error) throw error;
-        window.location.href = '/dashboard';
-      } catch (err) {
-        setError(err.message);
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 3000);
-      }
-    };
-
-    handleCallback();
-  }, []);
-
-  if (error) {
-    return (
-      <div className="flex align-items-center justify-content-center min-h-screen">
-        <div className="text-center">
-          <i className="pi pi-exclamation-circle text-5xl text-red-500 mb-4"></i>
-          <h2>Authentication Error</h2>
-          <p className="text-600">{error}</p>
-          <p className="text-600">Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex align-items-center justify-content-center min-h-screen">
-      <div className="text-center">
-        <i className="pi pi-spin pi-spinner text-5xl mb-4"></i>
-        <h2>Completing Authentication</h2>
-        <p className="text-600">Please wait...</p>
-      </div>
-    </div>
-  );
-};
