@@ -30,7 +30,6 @@ const Authmiddleware = ({ children }) => {
 // Public routes that don't require authentication
 export const publicRoutes = [
   { path: "/login", component: React.lazy(() => import("../pages/Authentication/Login")) },
-  { path: "/register", component: React.lazy(() => import("../pages/Authentication/Register")) },
   { path: "/forgot-password", component: React.lazy(() => import("../pages/Authentication/ForgotPassword")) },
   { path: "/auth/callback", component: React.lazy(() => import("../pages/Authentication/AuthCallback")) },
 ];
@@ -39,8 +38,7 @@ export const publicRoutes = [
 export const protectedRoutes = [
   { path: "/", exact: true, component: () => <Navigate to="/dashboard" /> },
   { path: "/dashboard", component: Dashboard },
-  { path: "/profile", component: React.lazy(() => import("../pages/Profile/UserProfile")) },
-  // Add more protected routes here
+  // Add more protected routes here as they are implemented
 ];
 
 export default Authmiddleware;
