@@ -4,6 +4,7 @@ import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
+import { Divider } from 'primereact/divider';
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -13,11 +14,10 @@ import { useToast } from "../../services/toast";
 
 // Images
 import logo from "../../assets/images/logo.svg";
-import lightlogo from "../../assets/images/logo-light.svg";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signInWithProvider } = useAuth();
   const navigate = useNavigate();
   const { ToastComponent, showSuccess, showError } = useToast();
 
@@ -31,14 +31,14 @@ const Login = () => {
         .email("Invalid email address")
         .required("Email is required"),
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
         .required("Password is required"),
     }),
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        await signIn(values.email, values.password);
-        showSuccess("Welcome back!", "Login successful");
+        const { error } = await signIn(values.email, values.password);
+        if (error) throw error;
+        showSuccess("Login successful", "Welcome back!");
         navigate("/dashboard");
       } catch (error) {
         showError(
@@ -51,6 +51,18 @@ const Login = () => {
     },
   });
 
+  const handleSocialLogin = async (provider) => {
+    try {
+      const { error } = await signInWithProvider(provider);
+      if (error) throw error;
+    } catch (error) {
+      showError(
+        "Login failed",
+        error.message || "Failed to login with " + provider
+      );
+    }
+  };
+
   return (
     <div className="flex align-items-center justify-content-center min-h-screen surface-ground">
       <ToastComponent />
@@ -59,7 +71,7 @@ const Login = () => {
         <Card className="shadow-2">
           <div className="text-center mb-5">
             <img src={logo} alt="logo" height="50" className="mb-3" />
-            <div className="text-900 text-3xl font-medium mb-3">Welcome Back!</div>
+            <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
             <span className="text-600 font-medium">Sign in to continue</span>
           </div>
 
@@ -100,8 +112,8 @@ const Login = () => {
 
             <div className="flex align-items-center justify-content-between mb-4">
               <div className="flex align-items-center">
-                <Link to="/forgot-password" className="font-medium no-underline text-blue-500 cursor-pointer">
-                  Forgot password?
+                <Link to="/auth/reset-password" className="font-medium no-underline text-blue-500">
+                  Forgot Password?
                 </Link>
               </div>
             </div>
@@ -114,8 +126,32 @@ const Login = () => {
               className="w-full"
             />
 
+            <Divider align="center">
+              <span className="text-600 font-medium">OR</span>
+            </Divider>
+
+            <div className="flex flex-column gap-2">
+              <Button
+                type="button"
+                label="Continue with Google"
+                icon="pi pi-google"
+                severity="secondary"
+                onClick={() => handleSocialLogin('google')}
+                className="p-button-outlined"
+              />
+              
+              <Button
+                type="button"
+                label="Continue with GitHub"
+                icon="pi pi-github"
+                severity="secondary"
+                onClick={() => handleSocialLogin('github')}
+                className="p-button-outlined"
+              />
+            </div>
+
             <div className="text-center mt-4">
-              <span className="text-600 font-medium">New to E6Intel? </span>
+              <span className="text-600 font-medium">New here? </span>
               <Link to="/register" className="font-medium no-underline text-blue-500">
                 Create an account
               </Link>

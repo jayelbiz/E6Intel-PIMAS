@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { connect } from "react-redux";
 import { createSelector } from "reselect";
@@ -8,11 +8,16 @@ import { createSelector } from "reselect";
 // Import Routes
 import { authProtectedRoutes, publicRoutes } from "./routes/index";
 import Authmiddleware from "./routes/route";
+import { authRoutes, PrivateRoute } from './routes/AuthRoutes';
 
 // Components
 import GlobalNavbar from "./components/GlobalNavbar";
 import NonAuthLayout from "./components/NonAuthLayout";
 import { AuthProvider } from "./hooks/useAuth";
+import Layout from './components/Layout/Layout';
+
+// Pages
+import Dashboard from './pages/Dashboard';
 
 // PrimeReact imports
 import "primereact/resources/themes/lara-light-indigo/theme.css";
@@ -32,36 +37,59 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <React.Fragment>
-        {isAuthenticated && <GlobalNavbar />}
-        <div className="pt-0">
-          <Routes>
-            {publicRoutes.map((route, idx) => (
-              <Route
-                path={route.path}
-                element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-                key={idx}
-                exact={true}
-              />
-            ))}
+      <Router>
+        <React.Fragment>
+          {isAuthenticated && <GlobalNavbar />}
+          <div className="pt-0">
+            <Routes>
+              {/* Auth Routes */}
+              {authRoutes.map((route, idx) => (
+                <Route key={idx} path={route.path} element={route.element} />
+              ))}
 
-            {authProtectedRoutes.map((route, idx) => (
+              {/* Public Routes */}
+              {publicRoutes.map((route, idx) => (
+                <Route
+                  path={route.path}
+                  element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+                  key={idx}
+                  exact={true}
+                />
+              ))}
+
+              {/* Protected Routes */}
+              {authProtectedRoutes.map((route, idx) => (
+                <Route
+                  path={route.path}
+                  element={
+                    <Authmiddleware>
+                      <div className="page-content">
+                        {route.component}
+                      </div>
+                    </Authmiddleware>
+                  }
+                  key={idx}
+                  exact={true}
+                />
+              ))}
               <Route
-                path={route.path}
+                path="/dashboard"
                 element={
-                  <Authmiddleware>
-                    <div className="page-content">
-                      {route.component}
-                    </div>
-                  </Authmiddleware>
+                  <PrivateRoute>
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  </PrivateRoute>
                 }
-                key={idx}
-                exact={true}
               />
-            ))}
-          </Routes>
-        </div>
-      </React.Fragment>
+
+              {/* Default redirect */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </div>
+        </React.Fragment>
+      </Router>
     </AuthProvider>
   );
 };

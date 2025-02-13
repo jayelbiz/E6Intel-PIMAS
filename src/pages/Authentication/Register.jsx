@@ -1,233 +1,141 @@
-import React, { useEffect } from "react";
-import { Row, Col, CardBody, Card, Alert, Container, Input, Label, Form, FormFeedback } from "reactstrap";
-
-// Formik Validation
-import * as Yup from "yup";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card } from 'primereact/card';
+import { InputText } from 'primereact/inputtext';
+import { Password } from 'primereact/password';
+import { Button } from 'primereact/button';
 import { useFormik } from "formik";
+import * as Yup from "yup";
 
-// action
-import { registerUser, apiError } from "/src/store/actions";
+// Custom hooks
+import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../services/toast";
 
-//redux
-import { useSelector, useDispatch } from "react-redux";
-import { createSelector } from "reselect";
-
-import { Link } from "react-router-dom";
-
-// import images
-import profileImg from "../../assets/images/profile-img.png";
+// Images
 import logo from "../../assets/images/logo.svg";
-import lightlogo from "../../assets/images/logo-light.svg";
 
 const Register = () => {
-  document.title = "Register | Skote - Vite React Admin & Dashboard Template";
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+  const { ToastComponent, showSuccess, showError } = useToast();
 
-  const dispatch = useDispatch();
-
-  const validation = useFormik({
-    // enableReinitialize : use this flag when initial values needs to be changed
-    enableReinitialize: true,
-
+  const formik = useFormik({
     initialValues: {
-      email: '',
-      username: '',
-      password: '',
+      email: "",
+      password: "",
+      confirmPassword: ""
     },
     validationSchema: Yup.object({
-      email: Yup.string().required("Please Enter Your Email"),
-      username: Yup.string().required("Please Enter Your Username"),
-      password: Yup.string().required("Please Enter Your Password"),
+      email: Yup.string()
+        .email("Invalid email address")
+        .required("Email is required"),
+      password: Yup.string()
+        .min(6, "Password must be at least 6 characters")
+        .required("Password is required"),
+      confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+        .required('Confirm Password is required')
     }),
-    onSubmit: (values) => {
-      dispatch(registerUser(values));
-    }
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        await signUp(values.email, values.password);
+        showSuccess("Registration successful!", "Please check your email to verify your account");
+        navigate("/login");
+      } catch (error) {
+        showError(
+          "Registration failed",
+          error.message || "Please try again"
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
   });
 
-  const AccountProperties = createSelector(
-    (state) => state.Account,
-    (account) => ({
-      user: account.user,
-      registrationError: account.registrationError,
-      // loading: account.loading,
-    })
-  );
-
-  const {
-    user,
-    registrationError,
-    // loading
-  } = useSelector(AccountProperties);
-
-  useEffect(() => {
-    dispatch(apiError(""));
-  }, []);
-
   return (
-    <React.Fragment>
+    <div className="flex align-items-center justify-content-center min-h-screen surface-ground">
+      <ToastComponent />
+      
+      <div className="w-full max-w-30rem p-4">
+        <Card className="shadow-2">
+          <div className="text-center mb-5">
+            <img src={logo} alt="logo" height="50" className="mb-3" />
+            <div className="text-900 text-3xl font-medium mb-3">Create Account</div>
+            <span className="text-600 font-medium">Join E6Intel</span>
+          </div>
 
-      <div className="home-btn d-none d-sm-block">
-        <Link to="/" className="text-dark">
-          <i className="bx bx-home h2" />
-        </Link>
+          <form onSubmit={formik.handleSubmit} className="p-fluid">
+            <div className="mb-4">
+              <span className="p-float-label">
+                <InputText
+                  id="email"
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  className={formik.errors.email && formik.touched.email ? 'p-invalid' : ''}
+                />
+                <label htmlFor="email">Email</label>
+              </span>
+              {formik.errors.email && formik.touched.email && (
+                <small className="p-error">{formik.errors.email}</small>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <span className="p-float-label">
+                <Password
+                  id="password"
+                  name="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  toggleMask
+                  className={formik.errors.password && formik.touched.password ? 'p-invalid' : ''}
+                />
+                <label htmlFor="password">Password</label>
+              </span>
+              {formik.errors.password && formik.touched.password && (
+                <small className="p-error">{formik.errors.password}</small>
+              )}
+            </div>
+
+            <div className="mb-4">
+              <span className="p-float-label">
+                <Password
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  toggleMask
+                  className={formik.errors.confirmPassword && formik.touched.confirmPassword ? 'p-invalid' : ''}
+                  feedback={false}
+                />
+                <label htmlFor="confirmPassword">Confirm Password</label>
+              </span>
+              {formik.errors.confirmPassword && formik.touched.confirmPassword && (
+                <small className="p-error">{formik.errors.confirmPassword}</small>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              label="Create Account"
+              icon="pi pi-user-plus"
+              loading={loading}
+              className="w-full"
+            />
+
+            <div className="text-center mt-4">
+              <span className="text-600 font-medium">Already have an account? </span>
+              <Link to="/login" className="font-medium no-underline text-blue-500">
+                Sign In
+              </Link>
+            </div>
+          </form>
+        </Card>
       </div>
-      <div className="account-pages my-5 pt-sm-5">
-        <Container>
-          <Row className="justify-content-center">
-            <Col md={8} lg={6} xl={5}>
-              <Card className="overflow-hidden">
-                <div className="bg-primary-subtle">
-                  <Row>
-                    <Col className="col-7">
-                      <div className="text-primary p-4">
-                        <h5 className="text-primary">Free Register</h5>
-                        <p>Get your free Skote account now.</p>
-                      </div>
-                    </Col>
-                    <Col className="col-5 align-self-end">
-                      <img src={profileImg} alt="" className="img-fluid" />
-                    </Col>
-                  </Row>
-                </div>
-                <CardBody className="pt-0">
-                  <div className="auth-logo">
-                    <Link to="/" className="auth-logo-light">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
-                          <img
-                            src={lightlogo}
-                            alt=""
-                            className="rounded-circle"
-                            height="34"
-                          />
-                        </span>
-                      </div>
-                    </Link>
-                    <Link to="/" className="auth-logo-dark">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
-                          <img
-                            src={logo}
-                            alt=""
-                            className="rounded-circle"
-                            height="34"
-                          />
-                        </span>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="p-2">
-                    <Form
-                      className="form-horizontal"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        validation.handleSubmit();
-                        return false;
-                      }}
-                    >
-                      {user && user ? (
-                        <Alert color="success">
-                          Register User Successfully
-                        </Alert>
-                      ) : null}
-
-                      {registrationError && registrationError ? (
-                        <Alert color="danger">{registrationError}</Alert>
-                      ) : null}
-
-                      <div className="mb-3">
-                        <Label className="form-label">Email</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          className="form-control"
-                          placeholder="Enter email"
-                          type="email"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.email || ""}
-                          invalid={
-                            validation.touched.email && validation.errors.email ? true : false
-                          }
-                        />
-                        {validation.touched.email && validation.errors.email ? (
-                          <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>
-                        ) : null}
-                      </div>
-
-                      <div className="mb-3">
-                        <Label className="form-label">Username</Label>
-                        <Input
-                          name="username"
-                          type="text"
-                          placeholder="Enter username"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.username || ""}
-                          invalid={
-                            validation.touched.username && validation.errors.username ? true : false
-                          }
-                        />
-                        {validation.touched.username && validation.errors.username ? (
-                          <FormFeedback type="invalid">{validation.errors.username}</FormFeedback>
-                        ) : null}
-                      </div>
-                      <div className="mb-3">
-                        <Label className="form-label">Password</Label>
-                        <Input
-                          name="password"
-                          type="password"
-                          placeholder="Enter Password"
-                          onChange={validation.handleChange}
-                          onBlur={validation.handleBlur}
-                          value={validation.values.password || ""}
-                          invalid={
-                            validation.touched.password && validation.errors.password ? true : false
-                          }
-                        />
-                        {validation.touched.password && validation.errors.password ? (
-                          <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
-                        ) : null}
-                      </div>
-
-                      <div className="mt-4">
-                        <button
-                          className="btn btn-primary btn-block "
-                          type="submit"
-                        >
-                          Register
-                        </button>
-                      </div>
-
-                      <div className="mt-4 text-center">
-                        <p className="mb-0">
-                          By registering you agree to the Skote{" "}
-                          <Link to="#" className="text-primary">
-                            Terms of Use
-                          </Link>
-                        </p>
-                      </div>
-                    </Form>
-                  </div>
-                </CardBody>
-              </Card>
-              <div className="mt-5 text-center">
-                <p>
-                  Already have an account ?{" "}
-                  <Link to="/login" className="font-weight-medium text-primary">
-                    {" "}
-                    Login
-                  </Link>{" "}
-                </p>
-                <p>
-                  © {new Date().getFullYear()} Skote. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Themesbrand
-                </p>
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    </React.Fragment>
+    </div>
   );
 };
 
