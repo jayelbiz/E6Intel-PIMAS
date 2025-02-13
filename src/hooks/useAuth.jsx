@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { auth } from '../config/supabase';
+import { supabase } from '../config/supabase';
 
 const AuthContext = createContext({});
 
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     const initialize = async () => {
       try {
         // Check for existing session
-        const { session, error: sessionError } = await auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
         
         if (mounted) {
@@ -33,8 +33,8 @@ export const AuthProvider = ({ children }) => {
     initialize();
 
     // Subscribe to auth changes
-    const { data: authListener } = auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed in hook:', event);
+    const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id);
       if (mounted) {
         setUser(session?.user ?? null);
         setLoading(false);
@@ -50,9 +50,12 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     try {
       setError(null);
-      const { user: authUser, error: signInError } = await auth.signIn(email, password);
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       if (signInError) throw signInError;
-      setUser(authUser);
+      setUser(data.user);
       return { error: null };
     } catch (err) {
       console.error('Sign in error:', err);
@@ -61,12 +64,33 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const signInWithProvider = async (provider) => {
+    try {
+      setError(null);
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) throw error;
+      return { data, error: null };
+    } catch (err) {
+      console.error('Social sign in error:', err);
+      setError(err.message);
+      return { data: null, error: err };
+    }
+  };
+
   const signUp = async (email, password) => {
     try {
       setError(null);
-      const { user: authUser, error: signUpError } = await auth.signUp(email, password);
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
       if (signUpError) throw signUpError;
-      setUser(authUser);
+      setUser(data.user);
       return { error: null };
     } catch (err) {
       console.error('Sign up error:', err);
@@ -78,12 +102,25 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setError(null);
-      const { error: signOutError } = await auth.signOut();
+      const { error: signOutError } = await supabase.auth.signOut();
       if (signOutError) throw signOutError;
       setUser(null);
       return { error: null };
     } catch (err) {
       console.error('Sign out error:', err);
+      setError(err.message);
+      return { error: err };
+    }
+  };
+
+  const resetPassword = async (email) => {
+    try {
+      setError(null);
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email);
+      if (resetError) throw resetError;
+      return { error: null };
+    } catch (err) {
+      console.error('Password reset error:', err);
       setError(err.message);
       return { error: err };
     }
@@ -96,8 +133,10 @@ export const AuthProvider = ({ children }) => {
         loading,
         error,
         signIn,
+        signInWithProvider,
         signUp,
         signOut,
+        resetPassword,
         setError
       }}
     >
@@ -108,7 +147,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

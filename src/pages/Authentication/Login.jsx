@@ -51,15 +51,18 @@ const Login = () => {
     },
   });
 
-  const handleSocialLogin = async (provider) => {
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
     try {
-      const { error } = await signInWithProvider(provider);
+      const { error } = await signInWithProvider('google');
       if (error) throw error;
+      // No need to navigate or show success here - the callback will handle it
     } catch (error) {
       showError(
-        "Login failed",
-        error.message || "Failed to login with " + provider
+        "Google sign-in failed",
+        error.message || "Unable to sign in with Google. Please try again."
       );
+      setLoading(false);
     }
   };
 
@@ -76,8 +79,9 @@ const Login = () => {
           </div>
 
           <form onSubmit={formik.handleSubmit} className="p-fluid">
-            <div className="mb-4">
-              <span className="p-float-label">
+            <div className="field">
+              <span className="p-float-label p-input-icon-right">
+                <i className="pi pi-envelope" />
                 <InputText
                   id="email"
                   name="email"
@@ -85,14 +89,14 @@ const Login = () => {
                   onChange={formik.handleChange}
                   className={formik.errors.email && formik.touched.email ? 'p-invalid' : ''}
                 />
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">Email*</label>
               </span>
               {formik.errors.email && formik.touched.email && (
                 <small className="p-error">{formik.errors.email}</small>
               )}
             </div>
 
-            <div className="mb-4">
+            <div className="field">
               <span className="p-float-label">
                 <Password
                   id="password"
@@ -103,59 +107,45 @@ const Login = () => {
                   className={formik.errors.password && formik.touched.password ? 'p-invalid' : ''}
                   feedback={false}
                 />
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">Password*</label>
               </span>
               {formik.errors.password && formik.touched.password && (
                 <small className="p-error">{formik.errors.password}</small>
               )}
             </div>
 
-            <div className="flex align-items-center justify-content-between mb-4">
+            <div className="flex align-items-center justify-content-between mb-5">
               <div className="flex align-items-center">
-                <Link to="/auth/reset-password" className="font-medium no-underline text-blue-500">
-                  Forgot Password?
+                <Link to="/auth/reset-password" className="font-medium no-underline text-blue-500 cursor-pointer">
+                  Forgot password?
                 </Link>
               </div>
+              <Link to="/register" className="font-medium no-underline text-blue-500 cursor-pointer">
+                Create account
+              </Link>
             </div>
 
             <Button
               type="submit"
               label="Sign In"
               icon="pi pi-user"
+              className="w-full mb-3"
               loading={loading}
-              className="w-full"
             />
 
             <Divider align="center">
               <span className="text-600 font-medium">OR</span>
             </Divider>
 
-            <div className="flex flex-column gap-2">
-              <Button
-                type="button"
-                label="Continue with Google"
-                icon="pi pi-google"
-                severity="secondary"
-                onClick={() => handleSocialLogin('google')}
-                className="p-button-outlined"
-              />
-              
-              <Button
-                type="button"
-                label="Continue with GitHub"
-                icon="pi pi-github"
-                severity="secondary"
-                onClick={() => handleSocialLogin('github')}
-                className="p-button-outlined"
-              />
-            </div>
-
-            <div className="text-center mt-4">
-              <span className="text-600 font-medium">New here? </span>
-              <Link to="/register" className="font-medium no-underline text-blue-500">
-                Create an account
-              </Link>
-            </div>
+            <Button
+              type="button"
+              label="Sign in with Google"
+              icon="pi pi-google"
+              severity="secondary"
+              className="w-full p-button-outlined"
+              onClick={handleGoogleSignIn}
+              loading={loading}
+            />
           </form>
         </Card>
       </div>
