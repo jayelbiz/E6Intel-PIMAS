@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 import { Avatar } from "primereact/avatar";
 import { Menu } from "primereact/menu";
 import { useRef } from "react";
-import logo from "../../assets/images/logo-sm.png";
+import logo from "../../assets/images/logo.svg";
 import "./styles.scss";
 
 const GlobalNavbar = () => {

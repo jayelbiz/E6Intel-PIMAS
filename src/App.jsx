@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import { connect } from "react-redux";
 import { useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { createSelector } from "reselect";
 
 // Import Routes
@@ -12,6 +12,7 @@ import Authmiddleware from "./routes/route";
 // Components
 import GlobalNavbar from "./components/GlobalNavbar";
 import NonAuthLayout from "./components/NonAuthLayout";
+import { AuthProvider } from "./hooks/useAuth";
 
 // PrimeReact imports
 import "primereact/resources/themes/lara-light-indigo/theme.css";
@@ -30,36 +31,38 @@ const App = () => {
   const { isAuthenticated } = useSelector((state) => state.auth || {});
 
   return (
-    <React.Fragment>
-      {isAuthenticated && <GlobalNavbar />}
-      <div className="pt-0">
-        <Routes>
-          {publicRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-              key={idx}
-              exact={true}
-            />
-          ))}
+    <AuthProvider>
+      <React.Fragment>
+        {isAuthenticated && <GlobalNavbar />}
+        <div className="pt-0">
+          <Routes>
+            {publicRoutes.map((route, idx) => (
+              <Route
+                path={route.path}
+                element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+                key={idx}
+                exact={true}
+              />
+            ))}
 
-          {authProtectedRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={
-                <Authmiddleware>
-                  <div className="page-content">
-                    {route.component}
-                  </div>
-                </Authmiddleware>
-              }
-              key={idx}
-              exact={true}
-            />
-          ))}
-        </Routes>
-      </div>
-    </React.Fragment>
+            {authProtectedRoutes.map((route, idx) => (
+              <Route
+                path={route.path}
+                element={
+                  <Authmiddleware>
+                    <div className="page-content">
+                      {route.component}
+                    </div>
+                  </Authmiddleware>
+                }
+                key={idx}
+                exact={true}
+              />
+            ))}
+          </Routes>
+        </div>
+      </React.Fragment>
+    </AuthProvider>
   );
 };
 

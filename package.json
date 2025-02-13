@@ -12,7 +12,8 @@
   "dependencies": {
     "@fontsource-variable/roboto-flex": "^5.0.8",
     "@netlify/functions": "^2.6.0",
-    "apexcharts": "^3.35.5",
+    "@supabase/supabase-js": "^2.48.1",
+    "apexcharts": "^4.4.0",
     "axios": "^1.6.7",
     "axios-mock-adapter": "^1.22.0",
     "bootstrap": "^5.3.3",
@@ -62,7 +63,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "sass": "^1.71.1",
+    "sass": "^1.84.0",
     "typescript": "^5.3.3",
     "vite": "^5.1.4"
   },
