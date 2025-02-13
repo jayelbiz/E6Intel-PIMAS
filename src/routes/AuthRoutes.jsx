@@ -7,9 +7,11 @@ import Login from '../pages/Authentication/Login';
 import Register from '../pages/Authentication/Register';
 import ResetPassword from '../pages/Authentication/ResetPassword';
 import UserProfile from '../pages/Profile/UserProfile';
+import SessionManagement from '../pages/Profile/SessionManagement';
+import RoleManagement from '../pages/Admin/RoleManagement';
 
 // Auth route wrapper
-export const PrivateRoute = ({ children }) => {
+export const PrivateRoute = ({ children, requiredPermissions = [] }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -22,6 +24,25 @@ export const PrivateRoute = ({ children }) => {
 
   if (!user) {
     return <Navigate to="/login" />;
+  }
+
+  // Check permissions if required
+  if (requiredPermissions.length > 0) {
+    const hasPermission = requiredPermissions.every(permission =>
+      user.permissions?.includes(permission)
+    );
+
+    if (!hasPermission) {
+      return (
+        <div className="flex align-items-center justify-content-center min-h-screen">
+          <div className="text-center">
+            <i className="pi pi-lock text-5xl text-red-500 mb-4"></i>
+            <h2>Access Denied</h2>
+            <p className="text-600">You don't have permission to access this page.</p>
+          </div>
+        </div>
+      );
+    }
   }
 
   return children;
@@ -77,6 +98,22 @@ export const authRoutes = [
     element: (
       <PrivateRoute>
         <UserProfile />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: '/profile/sessions',
+    element: (
+      <PrivateRoute>
+        <SessionManagement />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: '/admin/roles',
+    element: (
+      <PrivateRoute requiredPermissions={['manage_users']}>
+        <RoleManagement />
       </PrivateRoute>
     ),
   },

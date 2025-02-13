@@ -41,8 +41,10 @@ export const auth = {
     return { data, error };
   },
 
-  signOut: async () => {
-    const { error } = await supabase.auth.signOut();
+  signOut: async (allSessions = false) => {
+    const { error } = await supabase.auth.signOut({
+      scope: allSessions ? 'global' : 'local'
+    });
     return { error };
   },
 
@@ -85,6 +87,72 @@ export const auth = {
     return supabase.auth.onAuthStateChange(callback);
   },
 
+  // Role Management
+  getUserRoles: async (userId) => {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+    return { roles: data?.map(r => r.role) || [], error };
+  },
+
+  checkPermission: async (userId, permission) => {
+    const { data, error } = await supabase
+      .rpc('check_user_permission', {
+        p_user_id: userId,
+        p_permission: permission
+      });
+    return { hasPermission: data || false, error };
+  },
+
+  getUserPermissions: async (userId) => {
+    const { data, error } = await supabase
+      .rpc('get_user_permissions', {
+        p_user_id: userId
+      });
+    return { permissions: data || [], error };
+  },
+
+  assignRole: async (userId, role) => {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .upsert({
+        user_id: userId,
+        role: role,
+        assigned_by: (await supabase.auth.getUser()).data.user?.id
+      });
+    return { data, error };
+  },
+
+  // Session Management
+  getActiveSessions: async () => {
+    const { data, error } = await supabase
+      .from('active_sessions')
+      .select('*')
+      .order('last_active', { ascending: false });
+    return { sessions: data || [], error };
+  },
+
+  terminateSession: async (sessionId) => {
+    const { error } = await supabase
+      .from('active_sessions')
+      .delete()
+      .eq('session_id', sessionId);
+    return { error };
+  },
+
+  terminateAllSessions: async (userId) => {
+    const { error } = await supabase
+      .from('active_sessions')
+      .delete()
+      .eq('user_id', userId);
+    
+    if (!error) {
+      await auth.signOut(true);
+    }
+    return { error };
+  },
+
   // Get user profile data
   getUserProfile: async () => {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -96,7 +164,17 @@ export const auth = {
       .eq('id', user.id)
       .single();
 
-    return { profile, error: profileError };
+    const { roles } = await auth.getUserRoles(user.id);
+    const { permissions } = await auth.getUserPermissions(user.id);
+
+    return { 
+      profile: {
+        ...profile,
+        roles,
+        permissions
+      }, 
+      error: profileError 
+    };
   },
 
   // Update user profile data
