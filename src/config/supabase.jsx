@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 // Validate and get Supabase URL
 const getSupabaseUrl = () => {
   const url = import.meta.env.VITE_SUPABASE_URL;
+  console.log('Supabase URL:', url); // Debug log
   if (!url) {
     throw new Error('VITE_SUPABASE_URL is not set in environment variables');
   }
@@ -17,26 +18,20 @@ const getSupabaseUrl = () => {
 // Validate and get Supabase Anon Key
 const getSupabaseAnonKey = () => {
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  console.log('Supabase Key exists:', !!key); // Debug log
   if (!key) {
     throw new Error('VITE_SUPABASE_ANON_KEY is not set in environment variables');
   }
-  
-  // Validate JWT format (assuming the key is a JWT token)
-  const jwtPattern = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
-  if (!jwtPattern.test(key)) {
-    throw new Error('VITE_SUPABASE_ANON_KEY is not in valid JWT format');
-  }
-  
   return key;
 };
 
 // Initialize Supabase client with validation
-let supabase;
+let supabase = null;
+
 try {
+  console.log('Initializing Supabase client...'); // Debug log
   const supabaseUrl = getSupabaseUrl();
   const supabaseAnonKey = getSupabaseAnonKey();
-  
-  console.log('Initializing Supabase client with URL:', supabaseUrl);
   
   supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
@@ -45,15 +40,43 @@ try {
       detectSessionInUrl: true
     }
   });
-  
+
   // Test the connection
+  console.log('Testing Supabase connection...'); // Debug log
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Supabase connection established, auth state:', event);
+    console.log('Supabase Auth State:', event, session ? 'Session exists' : 'No session');
   });
   
 } catch (error) {
-  console.error('Failed to initialize Supabase client:', error);
+  console.error('Supabase initialization error:', error);
+  // Create a visible error element
+  const errorDiv = document.createElement('div');
+  errorDiv.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fee;
+    color: #c00;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 9999;
+    max-width: 80%;
+    text-align: center;
+    font-family: system-ui, -apple-system, sans-serif;
+  `;
+  errorDiv.innerHTML = `
+    <h3 style="margin: 0 0 10px; color: #800;">Configuration Error</h3>
+    <p style="margin: 0 0 15px;">${error.message}</p>
+    <p style="margin: 0; font-size: 0.9em; color: #666;">Please check your .env file and ensure all Supabase configuration values are set correctly.</p>
+  `;
+  document.body.appendChild(errorDiv);
   throw error;
+}
+
+if (!supabase) {
+  throw new Error('Failed to initialize Supabase client');
 }
 
 // Export initialized client
@@ -81,15 +104,17 @@ export const auth = {
 
   signIn: async (email, password) => {
     try {
+      console.log('Attempting sign in...', email); // Debug log
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
-      return { data, error: null };
+      console.log('Sign in successful:', data.user?.email); // Debug log
+      return { user: data.user, error: null };
     } catch (error) {
       console.error('Sign in failed:', error);
-      return { data: null, error };
+      return { user: null, error };
     }
   },
 
@@ -111,10 +136,12 @@ export const auth = {
 
   signOut: async (allSessions = false) => {
     try {
+      console.log('Attempting sign out...'); // Debug log
       const { error } = await supabase.auth.signOut({
         scope: allSessions ? 'global' : 'local'
       });
       if (error) throw error;
+      console.log('Sign out successful'); // Debug log
       return { error: null };
     } catch (error) {
       console.error('Sign out failed:', error);
@@ -178,9 +205,9 @@ export const auth = {
 
   getSession: async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
       if (error) throw error;
-      return { session, error: null };
+      return { session: data.session, error: null };
     } catch (error) {
       console.error('Get session failed:', error);
       return { session: null, error };
