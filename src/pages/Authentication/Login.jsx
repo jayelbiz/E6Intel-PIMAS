@@ -14,7 +14,6 @@ import { useToast } from "../../services/toast";
 
 // Images
 import logo from "../../assets/images/logo.svg";
-import googleIcon from "../../assets/images/google.svg";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -142,12 +141,15 @@ const Login = () => {
                     <div className="mb-3">
                       <Button
                         type="button"
-                        label="Sign in with Google"
-                        icon="pi pi-google"
-                        className="w-full p-button-secondary p-button-outlined"
+                        severity="secondary"
+                        outlined
+                        label="Continue with Google"
+                        className="w-full p-button-outlined flex align-items-center justify-content-center gap-2"
                         onClick={handleGoogleSignIn}
                         loading={loading}
-                      />
+                      >
+                        <i className="pi pi-google text-xl" />
+                      </Button>
                     </div>
                   </form>
 
