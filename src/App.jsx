@@ -9,9 +9,8 @@ import { createSelector } from "reselect";
 import { authProtectedRoutes, publicRoutes } from "./routes/index";
 import Authmiddleware from "./routes/route";
 
-// Layouts
-import VerticalLayout from "./components/VerticalLayout/";
-import HorizontalLayout from "./components/HorizontalLayout/";
+// Components
+import GlobalNavbar from "./components/GlobalNavbar";
 import NonAuthLayout from "./components/NonAuthLayout";
 
 // PrimeReact imports
@@ -27,58 +26,39 @@ import fakeBackend from "./helpers/AuthType/fakeBackend"
 // Activating fake backend
 fakeBackend();
 
-const App = (props) => {
-  const LayoutProperties = createSelector(
-    (state) => state.Layout,
-    (layout) => ({
-      layoutType: layout.layoutType,
-    })
-  );
-
-  const {
-    layoutType
-  } = useSelector(LayoutProperties);
-
-  function getLayout(layoutType) {
-    let layoutCls = VerticalLayout;
-    switch (layoutType) {
-      case "horizontal":
-        layoutCls = HorizontalLayout;
-        break;
-      default:
-        layoutCls = VerticalLayout;
-        break;
-    }
-    return layoutCls;
-  }
-
-  const Layout = getLayout(layoutType);
+const App = () => {
+  const { isAuthenticated } = useSelector((state) => state.auth || {});
 
   return (
     <React.Fragment>
-      <Routes>
-        {publicRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-            key={idx}
-            exact={true}
-          />
-        ))}
+      {isAuthenticated && <GlobalNavbar />}
+      <div className="pt-0">
+        <Routes>
+          {publicRoutes.map((route, idx) => (
+            <Route
+              path={route.path}
+              element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+              key={idx}
+              exact={true}
+            />
+          ))}
 
-        {authProtectedRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            element={
-              <Authmiddleware>
-                <Layout>{route.component}</Layout>
-              </Authmiddleware>
-            }
-            key={idx}
-            exact={true}
-          />
-        ))}
-      </Routes>
+          {authProtectedRoutes.map((route, idx) => (
+            <Route
+              path={route.path}
+              element={
+                <Authmiddleware>
+                  <div className="page-content">
+                    {route.component}
+                  </div>
+                </Authmiddleware>
+              }
+              key={idx}
+              exact={true}
+            />
+          ))}
+        </Routes>
+      </div>
     </React.Fragment>
   );
 };

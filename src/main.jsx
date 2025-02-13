@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from "react-dom/client"
 import App from './App.jsx'
-import * as serviceWorker from "./serviceWorker"
+import * as serviceWorker from "./serviceWorker.jsx"
 import { BrowserRouter } from 'react-router-dom'
-import "./i18n"
+import "./i18n.jsx"
 import { Provider } from 'react-redux'
 import store from './store/index.js'
 
