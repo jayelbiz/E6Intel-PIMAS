@@ -9,33 +9,40 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Check active session
-    const checkSession = async () => {
+    let mounted = true;
+
+    const initialize = async () => {
       try {
+        // Check for existing session
         const { session, error: sessionError } = await auth.getSession();
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          throw sessionError;
+        if (sessionError) throw sessionError;
+        
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setLoading(false);
         }
-        setUser(session?.user ?? null);
       } catch (err) {
-        console.error('Auth error:', err);
-        setError(err.message || 'Failed to check authentication session');
-      } finally {
-        setLoading(false);
+        console.error('Auth initialization error:', err);
+        if (mounted) {
+          setError(err.message);
+          setLoading(false);
+        }
       }
     };
 
-    checkSession();
+    initialize();
 
     // Subscribe to auth changes
     const { data: authListener } = auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      console.log('Auth state changed in hook:', event);
+      if (mounted) {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
     });
 
     return () => {
+      mounted = false;
       authListener?.unsubscribe();
     };
   }, []);
@@ -43,30 +50,28 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     try {
       setError(null);
-      const { error: signInError } = await auth.signIn(email, password);
-      if (signInError) {
-        console.error('Sign in error:', signInError);
-        throw signInError;
-      }
+      const { user: authUser, error: signInError } = await auth.signIn(email, password);
+      if (signInError) throw signInError;
+      setUser(authUser);
+      return { error: null };
     } catch (err) {
-      console.error('Sign in failed:', err);
-      setError(err.message || 'Failed to sign in');
-      throw err;
+      console.error('Sign in error:', err);
+      setError(err.message);
+      return { error: err };
     }
   };
 
   const signUp = async (email, password) => {
     try {
       setError(null);
-      const { error: signUpError } = await auth.signUp(email, password);
-      if (signUpError) {
-        console.error('Sign up error:', signUpError);
-        throw signUpError;
-      }
+      const { user: authUser, error: signUpError } = await auth.signUp(email, password);
+      if (signUpError) throw signUpError;
+      setUser(authUser);
+      return { error: null };
     } catch (err) {
-      console.error('Sign up failed:', err);
-      setError(err.message || 'Failed to create account');
-      throw err;
+      console.error('Sign up error:', err);
+      setError(err.message);
+      return { error: err };
     }
   };
 
@@ -74,14 +79,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const { error: signOutError } = await auth.signOut();
-      if (signOutError) {
-        console.error('Sign out error:', signOutError);
-        throw signOutError;
-      }
+      if (signOutError) throw signOutError;
+      setUser(null);
+      return { error: null };
     } catch (err) {
-      console.error('Sign out failed:', err);
-      setError(err.message || 'Failed to sign out');
-      throw err;
+      console.error('Sign out error:', err);
+      setError(err.message);
+      return { error: err };
     }
   };
 
@@ -94,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         signIn,
         signUp,
         signOut,
-        isAuthenticated: !!user,
+        setError
       }}
     >
       {children}

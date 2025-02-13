@@ -25,62 +25,28 @@ const getSupabaseAnonKey = () => {
   return key;
 };
 
-// Initialize Supabase client with validation
-let supabase = null;
+// Initialize Supabase client
+const initSupabase = () => {
+  try {
+    console.log('Initializing Supabase client...'); // Debug log
+    const supabaseUrl = getSupabaseUrl();
+    const supabaseAnonKey = getSupabaseAnonKey();
+    
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
+  } catch (error) {
+    console.error('Supabase initialization error:', error);
+    throw error;
+  }
+};
 
-try {
-  console.log('Initializing Supabase client...'); // Debug log
-  const supabaseUrl = getSupabaseUrl();
-  const supabaseAnonKey = getSupabaseAnonKey();
-  
-  supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true
-    }
-  });
-
-  // Test the connection
-  console.log('Testing Supabase connection...'); // Debug log
-  supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Supabase Auth State:', event, session ? 'Session exists' : 'No session');
-  });
-  
-} catch (error) {
-  console.error('Supabase initialization error:', error);
-  // Create a visible error element
-  const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #fee;
-    color: #c00;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    z-index: 9999;
-    max-width: 80%;
-    text-align: center;
-    font-family: system-ui, -apple-system, sans-serif;
-  `;
-  errorDiv.innerHTML = `
-    <h3 style="margin: 0 0 10px; color: #800;">Configuration Error</h3>
-    <p style="margin: 0 0 15px;">${error.message}</p>
-    <p style="margin: 0; font-size: 0.9em; color: #666;">Please check your .env file and ensure all Supabase configuration values are set correctly.</p>
-  `;
-  document.body.appendChild(errorDiv);
-  throw error;
-}
-
-if (!supabase) {
-  throw new Error('Failed to initialize Supabase client');
-}
-
-// Export initialized client
-export { supabase };
+// Create Supabase instance
+export const supabase = initSupabase();
 
 // Auth helper functions
 export const auth = {
@@ -215,7 +181,10 @@ export const auth = {
   },
 
   onAuthStateChange: (callback) => {
-    return supabase.auth.onAuthStateChange(callback);
+    return supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session ? 'Session exists' : 'No session');
+      callback(event, session);
+    });
   },
 
   // Role Management
