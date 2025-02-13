@@ -1,46 +1,31 @@
 import PropTypes from "prop-types";
 import React from "react";
-
 import { Routes, Route } from "react-router-dom";
 import { connect } from "react-redux";
-
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
 
-// Import Routes all
+// Import Routes
 import { authProtectedRoutes, publicRoutes } from "./routes/index";
-
-// Import all middleware
 import Authmiddleware from "./routes/route";
 
-// layouts Format
+// Layouts
 import VerticalLayout from "./components/VerticalLayout/";
 import HorizontalLayout from "./components/HorizontalLayout/";
 import NonAuthLayout from "./components/NonAuthLayout";
 
+// PrimeReact imports
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+import "primeflex/primeflex.css";
+
 // Import scss
 import "./assets/scss/theme.scss";
-
-// Import Firebase Configuration file
-// import { initFirebaseBackend } from "./helpers/firebase_helper"
 
 import fakeBackend from "./helpers/AuthType/fakeBackend"
 // Activating fake backend
 fakeBackend();
-
-// const firebaseConfig = {
-//   apiKey: import.meta.env.VITE_APP_APIKEY,
-//   authDomain: import.meta.env.VITE_APP_AUTHDOMAIN,
-//   databaseURL: import.meta.env.VITE_APP_DATABASEURL,
-//   projectId: import.meta.env.VITE_APP_PROJECTID,
-//   storageBucket: import.meta.env.VITE_APP_STORAGEBUCKET,
-//   messagingSenderId: import.meta.env.VITE_APP_MESSAGINGSENDERID,
-//   appId: import.meta.env.VITE_APP_APPID,
-//   measurementId: import.meta.env.VITE_APP_MEASUREMENTID,
-// };
-
-// init firebase backend
-// initFirebaseBackend(firebaseConfig)
 
 const App = (props) => {
   const LayoutProperties = createSelector(
