@@ -1,44 +1,32 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Validate and get Supabase URL
-const getSupabaseUrl = () => {
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  console.log('Supabase URL:', url); // Debug log
-  if (!url) {
-    throw new Error('VITE_SUPABASE_URL is not set in environment variables');
-  }
-  try {
-    new URL(url);
-    return url;
-  } catch (error) {
-    throw new Error(`Invalid VITE_SUPABASE_URL format: ${url}`);
-  }
-};
-
-// Validate and get Supabase Anon Key
-const getSupabaseAnonKey = () => {
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  console.log('Supabase Key exists:', !!key); // Debug log
-  if (!key) {
-    throw new Error('VITE_SUPABASE_ANON_KEY is not set in environment variables');
-  }
-  return key;
-};
-
 // Initialize Supabase client
 const initSupabase = () => {
   try {
-    console.log('Initializing Supabase client...'); // Debug log
-    const supabaseUrl = getSupabaseUrl();
-    const supabaseAnonKey = getSupabaseAnonKey();
-    
-    return createClient(supabaseUrl, supabaseAnonKey, {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('Missing Supabase environment variables');
+    }
+
+    const client = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true
+      },
+      db: {
+        schema: 'public'
       }
     });
+
+    // Test the connection
+    client.auth.onAuthStateChange((event, session) => {
+      console.log('Supabase Auth State Change:', event, session?.user?.id);
+    });
+
+    return client;
   } catch (error) {
     console.error('Supabase initialization error:', error);
     throw error;

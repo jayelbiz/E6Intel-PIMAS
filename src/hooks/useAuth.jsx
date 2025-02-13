@@ -18,13 +18,20 @@ export const AuthProvider = ({ children }) => {
         if (sessionError) throw sessionError;
         
         if (mounted) {
-          setUser(session?.user ?? null);
+          if (session?.user) {
+            console.log('Existing session found:', session.user.id);
+            setUser(session.user);
+          } else {
+            console.log('No existing session');
+            setUser(null);
+          }
           setLoading(false);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
         if (mounted) {
           setError(err.message);
+          setUser(null);
           setLoading(false);
         }
       }
@@ -33,10 +40,14 @@ export const AuthProvider = ({ children }) => {
     initialize();
 
     // Subscribe to auth changes
-    const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       if (mounted) {
-        setUser(session?.user ?? null);
+        if (session?.user) {
+          setUser(session.user);
+        } else {
+          setUser(null);
+        }
         setLoading(false);
       }
     });
@@ -49,100 +60,65 @@ export const AuthProvider = ({ children }) => {
 
   const signIn = async (email, password) => {
     try {
-      setError(null);
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (signInError) throw signInError;
-      setUser(data.user);
-      return { error: null };
-    } catch (err) {
-      console.error('Sign in error:', err);
-      setError(err.message);
-      return { error: err };
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Sign in error:', error);
+      return { data: null, error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signInWithProvider = async (provider) => {
     try {
-      setError(null);
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
-        }
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
       if (error) throw error;
       return { data, error: null };
-    } catch (err) {
-      console.error('Social sign in error:', err);
-      setError(err.message);
-      return { data: null, error: err };
-    }
-  };
-
-  const signUp = async (email, password) => {
-    try {
-      setError(null);
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      if (signUpError) throw signUpError;
-      setUser(data.user);
-      return { error: null };
-    } catch (err) {
-      console.error('Sign up error:', err);
-      setError(err.message);
-      return { error: err };
+    } catch (error) {
+      console.error('Provider sign in error:', error);
+      return { data: null, error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
-      setError(null);
-      const { error: signOutError } = await supabase.auth.signOut();
-      if (signOutError) throw signOutError;
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       setUser(null);
       return { error: null };
-    } catch (err) {
-      console.error('Sign out error:', err);
-      setError(err.message);
-      return { error: err };
+    } catch (error) {
+      console.error('Sign out error:', error);
+      return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const resetPassword = async (email) => {
-    try {
-      setError(null);
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email);
-      if (resetError) throw resetError;
-      return { error: null };
-    } catch (err) {
-      console.error('Password reset error:', err);
-      setError(err.message);
-      return { error: err };
-    }
+  const value = {
+    user,
+    loading,
+    error,
+    signIn,
+    signInWithProvider,
+    signOut,
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        error,
-        signIn,
-        signInWithProvider,
-        signUp,
-        signOut,
-        resetPassword,
-        setError
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
