@@ -1,3 +1,6 @@
+-- Enable required extensions
+CREATE EXTENSION IF NOT EXISTS "pg_cron";
+
 -- Create notification tables
 CREATE TABLE IF NOT EXISTS user_notifications (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -166,9 +169,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create a scheduled job to clean up old notifications
-SELECT cron.schedule(
-  'cleanup-notifications',
-  '0 0 * * *',  -- Run at midnight every day
-  'SELECT cleanup_old_notifications();'
-);
+-- Create a manual cleanup function since pg_cron is not available
+CREATE OR REPLACE FUNCTION manual_cleanup_notifications()
+RETURNS void AS $$
+BEGIN
+  -- This can be called manually or through application logic
+  PERFORM cleanup_old_notifications();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

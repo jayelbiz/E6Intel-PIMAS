@@ -44,6 +44,12 @@ export const notificationService = {
     return { error };
   },
 
+  async cleanupOldNotifications() {
+    const { error } = await supabase
+      .rpc('manual_cleanup_notifications');
+    return { error };
+  },
+
   subscribeToNotifications(callback) {
     return supabase
       .channel('notifications_channel')
