@@ -1,57 +1,43 @@
-import PropTypes from "prop-types";
-import React, { useMemo } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { connect } from "react-redux";
-import { createSelector } from "reselect";
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Import Routes
-import { authProtectedRoutes, publicRoutes } from "./routes/index";
-import Authmiddleware from "./routes/route";
-import { authRoutes, PrivateRoute } from './routes/AuthRoutes';
+// Import routes
+import { publicRoutes, protectedRoutes } from './routes/route';
+import Authmiddleware from './routes/route';
 
-// Components
-import GlobalNavbar from "./components/GlobalNavbar";
-import NonAuthLayout from "./components/NonAuthLayout";
-import { AuthProvider } from "./hooks/useAuth";
-import Layout from './components/Layout/Layout';
+// Import layouts
+import NonAuthLayout from './layouts/NonAuthLayout';
+import VerticalLayout from './layouts/VerticalLayout';
 
-// Pages
-import Dashboard from './pages/Dashboard';
+// Import context provider
+import { AuthProvider } from './hooks/useAuth';
 
-// PrimeReact imports
-import "primereact/resources/themes/lara-light-indigo/theme.css";
-import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
-import "primeflex/primeflex.css";
+// Import PrimeReact styles
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
 
-// Import scss
-import "./assets/scss/theme.scss";
-
-import fakeBackend from "./helpers/AuthType/fakeBackend"
-// Activating fake backend
-fakeBackend();
-
-// Create memoized selector
-const selectAuth = createSelector(
-  state => state.auth,
-  auth => auth || {}
-);
+// Import Skote styles
+import './assets/scss/theme.scss';
 
 const App = () => {
-  const { isAuthenticated } = useSelector(selectAuth);
-
   return (
-    <AuthProvider>
-      <React.Fragment>
-        {isAuthenticated && <GlobalNavbar />}
-        <div className="pt-0">
+    <Router>
+      <AuthProvider>
+        <Suspense fallback={
+          <div className="auth-page-wrapper pt-5">
+            <div className="auth-page-content">
+              <div className="container">
+                <div className="row justify-content-center">
+                  <div className="col-md-8 col-lg-6 col-xl-5 text-center">
+                    <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }>
           <Routes>
-            {/* Auth Routes */}
-            {authRoutes.map((route, idx) => (
-              <Route key={idx} path={route.path} element={route.element} />
-            ))}
-
             {/* Public Routes */}
             {publicRoutes.map((route, idx) => (
               <Route
@@ -59,58 +45,31 @@ const App = () => {
                 path={route.path}
                 element={
                   <NonAuthLayout>
-                    {route.element}
+                    <route.component />
                   </NonAuthLayout>
                 }
               />
             ))}
 
             {/* Protected Routes */}
-            {authProtectedRoutes.map((route, idx) => (
+            {protectedRoutes.map((route, idx) => (
               <Route
                 key={idx}
                 path={route.path}
                 element={
                   <Authmiddleware>
-                    <Layout>{route.component}</Layout>
+                    <VerticalLayout>
+                      <route.component />
+                    </VerticalLayout>
                   </Authmiddleware>
                 }
               />
             ))}
-
-            {/* Default Route */}
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-
-            {/* Dashboard Route */}
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
-                </PrivateRoute>
-              }
-            />
           </Routes>
-        </div>
-      </React.Fragment>
-    </AuthProvider>
+        </Suspense>
+      </AuthProvider>
+    </Router>
   );
 };
 
-App.propTypes = {
-  layout: PropTypes.any,
-};
-
-// No need for mapStateToProps since we're using useSelector
 export default App;

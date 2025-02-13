@@ -56,7 +56,7 @@ const Login = () => {
     try {
       const { error } = await signInWithProvider('google');
       if (error) throw error;
-      // Callback will handle navigation
+      // Let AuthCallback handle the navigation
     } catch (error) {
       showError(
         "Google sign-in failed",
