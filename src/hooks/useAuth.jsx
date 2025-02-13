@@ -13,10 +13,14 @@ export const AuthProvider = ({ children }) => {
     const checkSession = async () => {
       try {
         const { session, error: sessionError } = await auth.getSession();
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
         setUser(session?.user ?? null);
       } catch (err) {
-        setError(err.message);
+        console.error('Auth error:', err);
+        setError(err.message || 'Failed to check authentication session');
       } finally {
         setLoading(false);
       }
@@ -26,6 +30,7 @@ export const AuthProvider = ({ children }) => {
 
     // Subscribe to auth changes
     const { data: authListener } = auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event);
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -39,9 +44,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const { error: signInError } = await auth.signIn(email, password);
-      if (signInError) throw signInError;
+      if (signInError) {
+        console.error('Sign in error:', signInError);
+        throw signInError;
+      }
     } catch (err) {
-      setError(err.message);
+      console.error('Sign in failed:', err);
+      setError(err.message || 'Failed to sign in');
       throw err;
     }
   };
@@ -50,9 +59,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const { error: signUpError } = await auth.signUp(email, password);
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error('Sign up error:', signUpError);
+        throw signUpError;
+      }
     } catch (err) {
-      setError(err.message);
+      console.error('Sign up failed:', err);
+      setError(err.message || 'Failed to create account');
       throw err;
     }
   };
@@ -61,9 +74,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const { error: signOutError } = await auth.signOut();
-      if (signOutError) throw signOutError;
+      if (signOutError) {
+        console.error('Sign out error:', signOutError);
+        throw signOutError;
+      }
     } catch (err) {
-      setError(err.message);
+      console.error('Sign out failed:', err);
+      setError(err.message || 'Failed to sign out');
       throw err;
     }
   };
