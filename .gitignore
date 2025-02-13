@@ -33,3 +33,6 @@ dist-ssr
 
 # windsurf rules
 .windsurfrules
+src/backbone/docs/*
+src/backbone/analysis/*
+src/backbone/requirements/prompt/*
