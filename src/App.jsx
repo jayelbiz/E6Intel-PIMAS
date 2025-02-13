@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useMemo } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { connect } from "react-redux";
 import { createSelector } from "reselect";
@@ -32,64 +32,78 @@ import fakeBackend from "./helpers/AuthType/fakeBackend"
 // Activating fake backend
 fakeBackend();
 
+// Create memoized selector
+const selectAuth = createSelector(
+  state => state.auth,
+  auth => auth || {}
+);
+
 const App = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth || {});
+  const { isAuthenticated } = useSelector(selectAuth);
 
   return (
     <AuthProvider>
-      <Router>
-        <React.Fragment>
-          {isAuthenticated && <GlobalNavbar />}
-          <div className="pt-0">
-            <Routes>
-              {/* Auth Routes */}
-              {authRoutes.map((route, idx) => (
-                <Route key={idx} path={route.path} element={route.element} />
-              ))}
+      <React.Fragment>
+        {isAuthenticated && <GlobalNavbar />}
+        <div className="pt-0">
+          <Routes>
+            {/* Auth Routes */}
+            {authRoutes.map((route, idx) => (
+              <Route key={idx} path={route.path} element={route.element} />
+            ))}
 
-              {/* Public Routes */}
-              {publicRoutes.map((route, idx) => (
-                <Route
-                  path={route.path}
-                  element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-                  key={idx}
-                  exact={true}
-                />
-              ))}
-
-              {/* Protected Routes */}
-              {authProtectedRoutes.map((route, idx) => (
-                <Route
-                  path={route.path}
-                  element={
-                    <Authmiddleware>
-                      <div className="page-content">
-                        {route.component}
-                      </div>
-                    </Authmiddleware>
-                  }
-                  key={idx}
-                  exact={true}
-                />
-              ))}
+            {/* Public Routes */}
+            {publicRoutes.map((route, idx) => (
               <Route
-                path="/dashboard"
+                key={idx}
+                path={route.path}
                 element={
-                  <PrivateRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </PrivateRoute>
+                  <NonAuthLayout>
+                    {route.element}
+                  </NonAuthLayout>
                 }
               />
+            ))}
 
-              {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-          </div>
-        </React.Fragment>
-      </Router>
+            {/* Protected Routes */}
+            {authProtectedRoutes.map((route, idx) => (
+              <Route
+                key={idx}
+                path={route.path}
+                element={
+                  <Authmiddleware>
+                    <Layout>{route.component}</Layout>
+                  </Authmiddleware>
+                }
+              />
+            ))}
+
+            {/* Default Route */}
+            <Route
+              path="/"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+
+            {/* Dashboard Route */}
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </React.Fragment>
     </AuthProvider>
   );
 };
@@ -98,10 +112,5 @@ App.propTypes = {
   layout: PropTypes.any,
 };
 
-const mapStateToProps = (state) => {
-  return {
-    layout: state.Layout,
-  };
-};
-
-export default connect(mapStateToProps, null)(App);
+// No need for mapStateToProps since we're using useSelector
+export default App;
