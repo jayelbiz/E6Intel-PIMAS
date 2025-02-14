@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
@@ -19,12 +19,7 @@ const AuthCallback = () => {
   const [error, setError] = useState(null);
   const { ToastComponent, showError } = useToast();
 
-  useEffect(() => {
-    // Parse error from URL parameters
-    const params = new URLSearchParams(location.search);
-    const errorType = params.get("error");
-    const errorDesc = params.get("error_description");
-
+  const handleAuthError = useCallback((errorType, errorDesc) => {
     if (errorType) {
       const decodedError = decodeURIComponent(errorDesc || "");
       setError({
@@ -33,10 +28,16 @@ const AuthCallback = () => {
       });
       showError("Authentication Error", decodedError);
     } else if (user) {
-      // If no error and user is authenticated, redirect to dashboard
       navigate("/dashboard");
     }
-  }, [user, navigate, location, showError]);
+  }, [navigate, user, showError]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const errorType = params.get("error");
+    const errorDesc = params.get("error_description");
+    handleAuthError(errorType, errorDesc);
+  }, [location, handleAuthError]);
 
   const handleRetry = () => {
     navigate("/login");
