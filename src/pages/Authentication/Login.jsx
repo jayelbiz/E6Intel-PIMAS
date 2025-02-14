@@ -67,100 +67,96 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-page-wrapper pt-5">
-      <div className="auth-page-content">
+    <div className="auth-page-wrapper min-h-screen flex align-items-center justify-content-center">
+      <div className="auth-page-content w-full">
         <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-8 col-lg-6 col-xl-5">
-              <Card className="mt-4">
-                <div className="text-center mt-2">
-                  <img src={logo} alt="Logo" height={50} className="mb-4" />
-                  <h5 className="text-primary">Welcome Back!</h5>
-                  <p className="text-muted">Sign in to continue to E6 Intel.</p>
+          <div className="flex justify-content-center">
+            <div className="col-12 md:col-8 lg:col-6 xl:col-5">
+              <Card className="shadow-4">
+                <div className="text-center mb-5">
+                  <div className="mb-4">
+                    <img src={logo} alt="Logo" height={50} className="mx-auto" />
+                  </div>
+                  <h5 className="text-primary text-2xl font-medium mb-2">Welcome Back!</h5>
+                  <p className="text-600 mb-0">Sign in to continue to E6 Intel.</p>
                 </div>
 
-                <div className="p-4">
-                  <form onSubmit={formik.handleSubmit} className="p-fluid">
-                    <div className="mb-3">
-                      <span className="p-float-label p-input-icon-right">
-                        <i className="pi pi-envelope" />
-                        <InputText
-                          id="email"
-                          name="email"
-                          value={formik.values.email}
-                          onChange={formik.handleChange}
-                          className={formik.errors.email && formik.touched.email ? 'p-invalid' : ''}
-                        />
-                        <label htmlFor="email">Email</label>
-                      </span>
-                      {formik.errors.email && formik.touched.email && (
-                        <small className="p-error block mt-1">{formik.errors.email}</small>
-                      )}
-                    </div>
-
-                    <div className="mb-3">
-                      <span className="p-float-label">
-                        <Password
-                          id="password"
-                          name="password"
-                          value={formik.values.password}
-                          onChange={formik.handleChange}
-                          toggleMask
-                          className={formik.errors.password && formik.touched.password ? 'p-invalid' : ''}
-                          feedback={false}
-                        />
-                        <label htmlFor="password">Password</label>
-                      </span>
-                      {formik.errors.password && formik.touched.password && (
-                        <small className="p-error block mt-1">{formik.errors.password}</small>
-                      )}
-                    </div>
-
-                    <div className="mb-4">
-                      <div className="float-end">
-                        <Link to="/forgot-password" className="text-muted">
-                          Forgot password?
-                        </Link>
-                      </div>
-                    </div>
-
-                    <div className="mb-3">
-                      <Button
-                        type="submit"
-                        label="Sign In"
-                        icon="pi pi-user"
-                        className="w-full p-button-primary"
-                        loading={loading}
+                <form onSubmit={formik.handleSubmit} className="p-fluid">
+                  <div className="mb-4">
+                    <span className="p-float-label p-input-icon-right w-full">
+                      <i className="pi pi-envelope" />
+                      <InputText
+                        id="email"
+                        name="email"
+                        value={formik.values.email}
+                        onChange={formik.handleChange}
+                        className={formik.errors.email && formik.touched.email ? 'p-invalid w-full' : 'w-full'}
                       />
-                    </div>
+                      <label htmlFor="email">Email</label>
+                    </span>
+                    {formik.errors.email && formik.touched.email && (
+                      <small className="p-error block mt-2">{formik.errors.email}</small>
+                    )}
+                  </div>
 
-                    <Divider align="center">
-                      <span className="text-muted text-uppercase">or</span>
-                    </Divider>
+                  <div className="mb-4">
+                    <span className="p-float-label w-full">
+                      <Password
+                        id="password"
+                        name="password"
+                        value={formik.values.password}
+                        onChange={formik.handleChange}
+                        toggleMask
+                        className={formik.errors.password && formik.touched.password ? 'p-invalid w-full' : 'w-full'}
+                        feedback={false}
+                        inputClassName="w-full"
+                      />
+                      <label htmlFor="password">Password</label>
+                    </span>
+                    {formik.errors.password && formik.touched.password && (
+                      <small className="p-error block mt-2">{formik.errors.password}</small>
+                    )}
+                  </div>
 
-                    <div className="mb-3">
-                      <Button
-                        type="button"
-                        severity="secondary"
-                        outlined
-                        label="Continue with Google"
-                        className="w-full p-button-outlined flex align-items-center justify-content-center gap-2"
-                        onClick={handleGoogleSignIn}
-                        loading={loading}
-                      >
-                        <i className="pi pi-google text-xl" />
-                      </Button>
-                    </div>
-                  </form>
+                  <div className="mb-4 flex justify-content-end">
+                    <Link to="/forgot-password" className="text-600 hover:text-primary no-underline">
+                      Forgot password?
+                    </Link>
+                  </div>
 
-                  <div className="mt-4 text-center">
-                    <p className="mb-0 text-muted">Don't have an account?{' '}
-                      <Link to="/register" className="fw-semibold text-primary text-decoration-underline">
+                  <Button
+                    type="submit"
+                    label="Sign In"
+                    icon="pi pi-user"
+                    className="mb-4 p-button-primary w-full"
+                    loading={loading}
+                  />
+
+                  <Divider align="center" className="my-4">
+                    <span className="text-600 font-medium">OR</span>
+                  </Divider>
+
+                  <Button
+                    type="button"
+                    severity="secondary"
+                    outlined
+                    className="mb-4 w-full p-button-outlined flex align-items-center justify-content-center gap-2"
+                    onClick={handleGoogleSignIn}
+                    loading={loading}
+                  >
+                    <i className="pi pi-google text-xl mr-2" />
+                    <span>Continue with Google</span>
+                  </Button>
+
+                  <div className="text-center">
+                    <p className="text-600 mb-0">
+                      Don't have an account?{' '}
+                      <Link to="/register" className="font-medium text-primary hover:underline">
                         Sign Up
                       </Link>
                     </p>
                   </div>
-                </div>
+                </form>
               </Card>
             </div>
           </div>
