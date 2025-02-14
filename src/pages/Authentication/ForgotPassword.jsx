@@ -44,63 +44,51 @@ const ForgotPassword = () => {
   });
 
   return (
-    <div className="auth-page-wrapper pt-5">
-      <div className="auth-page-content">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-8 col-lg-6 col-xl-5">
-              <Card className="mt-4">
-                <div className="text-center mt-2">
-                  <h5 className="text-primary">Forgot Password?</h5>
-                  <p className="text-muted">Enter your email to reset password</p>
-                </div>
+    <Card className="overflow-hidden">
+      <div className="p-4">
+        <div className="text-center mt-2">
+          <h5 className="text-primary">Forgot Password?</h5>
+          <p className="text-muted">Enter your email to reset your password</p>
+        </div>
 
-                <div className="p-4">
-                  <div className="alert alert-borderless alert-warning text-center mb-2 mx-2" role="alert">
-                    Enter your email and instructions will be sent to you!
-                  </div>
-                  <form onSubmit={formik.handleSubmit}>
-                    <div className="mb-4">
-                      <label htmlFor="email" className="form-label">Email</label>
-                      <InputText
-                        id="email"
-                        name="email"
-                        className={classNames('form-control', {
-                          'p-invalid': formik.touched.email && formik.errors.email,
-                        })}
-                        value={formik.values.email}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                      {formik.touched.email && formik.errors.email && (
-                        <small className="p-error">{formik.errors.email}</small>
-                      )}
-                    </div>
-
-                    <div className="text-center mt-4">
-                      <Button
-                        type="submit"
-                        label="Send Reset Link"
-                        className="w-100"
-                        loading={loading}
-                      />
-                    </div>
-                  </form>
-                </div>
-              </Card>
-
-              <div className="mt-4 text-center">
-                <p className="mb-0">Wait, I remember my password... {" "}
-                  <Link to="/login" className="fw-semibold text-primary text-decoration-underline">
-                    Click here
-                  </Link>
-                </p>
-              </div>
+        <div className="p-4">
+          <form onSubmit={formik.handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label">Email</label>
+              <InputText
+                id="email"
+                name="email"
+                className={classNames('w-full', {
+                  'p-invalid': formik.touched.email && formik.errors.email,
+                })}
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.email && formik.errors.email && (
+                <small className="p-error">{formik.errors.email}</small>
+              )}
             </div>
+
+            <div className="text-center mt-4">
+              <Button
+                type="submit"
+                label="Reset Password"
+                icon="pi pi-lock"
+                loading={loading}
+                className="w-full"
+              />
+            </div>
+          </form>
+
+          <div className="mt-4 text-center">
+            <p className="mb-0">
+              Remember your password? <Link to="/login" className="fw-semibold text-primary text-decoration-underline">Login</Link>
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
