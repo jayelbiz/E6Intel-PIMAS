@@ -1,27 +1,32 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card } from 'primereact/card';
-import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { classNames } from 'primereact/utils';
-import { useAuth } from '../../hooks/useAuth';
-import { useToast } from '../../hooks/useToast';
+import { Button } from 'primereact/button';
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import classNames from 'classnames';
+
+// Custom hooks
+import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../services/toast";
+
+// Images
+import logo from "../../assets/images/logo.svg";
 
 const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const { resetPassword } = useAuth();
-  const { showSuccess, showError } = useToast();
+  const { ToastComponent, showSuccess, showError } = useToast();
 
   const formik = useFormik({
     initialValues: {
-      email: '',
+      email: "",
     },
     validationSchema: Yup.object({
       email: Yup.string()
-        .email('Invalid email address')
-        .required('Email is required'),
+        .email("Invalid email address")
+        .required("Email is required"),
     }),
     onSubmit: async (values) => {
       setLoading(true);
@@ -29,13 +34,13 @@ const ForgotPassword = () => {
         const { error } = await resetPassword(values.email);
         if (error) throw error;
         showSuccess(
-          'Reset link sent',
-          'Please check your email for password reset instructions'
+          "Reset email sent",
+          "Please check your email for password reset instructions"
         );
       } catch (error) {
         showError(
-          'Reset failed',
-          error.message || 'Failed to send reset link. Please try again.'
+          "Reset failed",
+          error.message || "Unable to send reset email. Please try again."
         );
       } finally {
         setLoading(false);
@@ -44,51 +49,64 @@ const ForgotPassword = () => {
   });
 
   return (
-    <Card className="overflow-hidden">
-      <div className="p-4">
-        <div className="text-center mt-2">
-          <h5 className="text-primary">Forgot Password?</h5>
-          <p className="text-muted">Enter your email to reset your password</p>
-        </div>
+    <div className="auth-page-wrapper min-h-screen flex align-items-center justify-content-center">
+      <div className="auth-page-content w-full">
+        <div className="container">
+          <div className="flex justify-content-center">
+            <div className="col-12 md:col-8 lg:col-6 xl:col-5">
+              <Card className="shadow-4">
+                <div className="text-center mb-5">
+                  <div className="mb-4">
+                    <img src={logo} alt="Logo" height={50} className="mx-auto" />
+                  </div>
+                  <h5 className="text-primary text-2xl font-medium mb-2">Forgot Password?</h5>
+                  <p className="text-600 mb-0">Enter your email to reset your password</p>
+                </div>
 
-        <div className="p-4">
-          <form onSubmit={formik.handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <InputText
-                id="email"
-                name="email"
-                className={classNames('w-full', {
-                  'p-invalid': formik.touched.email && formik.errors.email,
-                })}
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              {formik.touched.email && formik.errors.email && (
-                <small className="p-error">{formik.errors.email}</small>
-              )}
+                <form onSubmit={formik.handleSubmit} className="p-fluid">
+                  <div className="mb-4">
+                    <span className="p-float-label p-input-icon-right w-full">
+                      <i className="pi pi-envelope" />
+                      <InputText
+                        id="email"
+                        name="email"
+                        value={formik.values.email}
+                        onChange={formik.handleChange}
+                        className={classNames('w-full', {
+                          'p-invalid': formik.errors.email && formik.touched.email
+                        })}
+                      />
+                      <label htmlFor="email">Email</label>
+                    </span>
+                    {formik.errors.email && formik.touched.email && (
+                      <small className="p-error block mt-2">{formik.errors.email}</small>
+                    )}
+                  </div>
+
+                  <Button
+                    type="submit"
+                    label="Reset Password"
+                    icon="pi pi-lock"
+                    className="mb-4 p-button-primary w-full"
+                    loading={loading}
+                  />
+
+                  <div className="text-center">
+                    <p className="text-600 mb-0">
+                      Remember your password?{' '}
+                      <Link to="/login" className="font-medium text-primary hover:underline">
+                        Sign In
+                      </Link>
+                    </p>
+                  </div>
+                </form>
+              </Card>
             </div>
-
-            <div className="text-center mt-4">
-              <Button
-                type="submit"
-                label="Reset Password"
-                icon="pi pi-lock"
-                loading={loading}
-                className="w-full"
-              />
-            </div>
-          </form>
-
-          <div className="mt-4 text-center">
-            <p className="mb-0">
-              Remember your password? <Link to="/login" className="fw-semibold text-primary text-decoration-underline">Login</Link>
-            </p>
           </div>
         </div>
       </div>
-    </Card>
+      <ToastComponent />
+    </div>
   );
 };
 

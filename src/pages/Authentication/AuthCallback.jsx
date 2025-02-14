@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
+import { Message } from 'primereact/message';
+import { ProgressSpinner } from 'primereact/progressspinner';
+
+// Custom hooks
 import { useAuth } from "../../hooks/useAuth";
-import { Card } from "primereact/card";
-import { Button } from "primereact/button";
-import { Message } from "primereact/message";
+import { useToast } from "../../services/toast";
+
+// Images
+import logo from "../../assets/images/logo.svg";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const [error, setError] = useState(null);
+  const { ToastComponent, showError } = useToast();
 
   useEffect(() => {
     // Parse error from URL parameters
@@ -18,50 +26,69 @@ const AuthCallback = () => {
     const errorDesc = params.get("error_description");
 
     if (errorType) {
+      const decodedError = decodeURIComponent(errorDesc || "");
       setError({
         type: errorType,
-        description: decodeURIComponent(errorDesc || "")
+        description: decodedError
       });
+      showError("Authentication Error", decodedError);
     } else if (user) {
       // If no error and user is authenticated, redirect to dashboard
       navigate("/dashboard");
     }
-  }, [user, navigate, location]);
+  }, [user, navigate, location, showError]);
 
   const handleRetry = () => {
     navigate("/login");
   };
 
-  if (error) {
-    return (
-      <Card className="overflow-hidden">
-        <div className="p-4 text-center">
-          <i className="pi pi-exclamation-circle text-danger" style={{ fontSize: '3rem' }}></i>
-          <h5 className="mt-4 mb-2">Authentication Error</h5>
-          <Message 
-            severity="error" 
-            text={error.description || "An error occurred during authentication"}
-            className="w-full mb-4"
-          />
-          <Button
-            label="Return to Login"
-            icon="pi pi-arrow-left"
-            onClick={handleRetry}
-            className="p-button-primary"
-          />
-        </div>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="overflow-hidden">
-      <div className="p-4 text-center">
-        <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>
-        <h5 className="mt-4">Processing Authentication...</h5>
-        <p className="text-muted">Please wait while we complete your sign-in.</p>
+    <div className="auth-page-wrapper min-h-screen flex align-items-center justify-content-center">
+      <div className="auth-page-content w-full">
+        <div className="container">
+          <div className="flex justify-content-center">
+            <div className="col-12 md:col-8 lg:col-6 xl:col-5">
+              <Card className="shadow-4">
+                <div className="text-center mb-5">
+                  <div className="mb-4">
+                    <img src={logo} alt="Logo" height={50} className="mx-auto" />
+                  </div>
+                  {error ? (
+                    <>
+                      <i className="pi pi-exclamation-circle text-6xl text-danger mb-4" />
+                      <h5 className="text-primary text-2xl font-medium mb-2">Authentication Error</h5>
+                      <Message 
+                        severity="error" 
+                        text={error.description || "An error occurred during authentication"}
+                        className="w-full mb-4"
+                      />
+                      <Button
+                        label="Return to Login"
+                        icon="pi pi-arrow-left"
+                        onClick={handleRetry}
+                        className="p-button-primary"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <ProgressSpinner 
+                        style={{ width: '50px', height: '50px' }} 
+                        strokeWidth="4"
+                        fill="var(--surface-ground)"
+                        animationDuration=".5s"
+                      />
+                      <h5 className="text-primary text-2xl font-medium mt-4 mb-2">Processing Authentication</h5>
+                      <p className="text-600 mb-0">Please wait while we complete your sign-in.</p>
+                    </>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
-    </Card>
+      <ToastComponent />
+    </div>
   );
 };
 
