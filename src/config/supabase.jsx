@@ -14,7 +14,13 @@ const initSupabase = () => {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        flowType: 'pkce',
+        storage: window.localStorage,
+        cookieOptions: {
+          secure: true,
+          sameSite: 'strict'
+        }
       },
       db: {
         schema: 'public'
@@ -77,6 +83,11 @@ export const auth = {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+            scope: 'openid email profile',
+          },
           redirectTo: `${window.location.origin}/auth/callback`
         }
       });
@@ -331,3 +342,5 @@ export const auth = {
     }
   }
 };
+
+export default supabase;
