@@ -2,19 +2,19 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 // Authentication pages
-const Login = React.lazy(() => import('../pages/Authentication/Login'));
-const Register = React.lazy(() => import('../pages/Authentication/Register'));
-const ForgotPassword = React.lazy(() => import('../pages/Authentication/ForgotPassword'));
-const ResetPassword = React.lazy(() => import('../pages/Authentication/ResetPassword'));
-const AuthCallback = React.lazy(() => import('../pages/Authentication/AuthCallback'));
+const Login = React.lazy(() => import('@pages/Authentication/Login.jsx'));
+const Register = React.lazy(() => import('@pages/Authentication/Register.jsx'));
+const ForgotPassword = React.lazy(() => import('@pages/Authentication/ForgotPassword.jsx'));
+const ResetPassword = React.lazy(() => import('@pages/Authentication/ResetPassword.jsx'));
+const AuthCallback = React.lazy(() => import('@pages/Authentication/AuthCallback.jsx'));
 
 // Main pages
-const Dashboard = React.lazy(() => import('../pages/Dashboard/index'));
-const News = React.lazy(() => import('../pages/News/index'));
-const Map = React.lazy(() => import('../pages/Map/index'));
-const Analysis = React.lazy(() => import('../pages/Analysis/index'));
-const Profile = React.lazy(() => import('../pages/Profile/index'));
-const Settings = React.lazy(() => import('../pages/Settings/index'));
+const Dashboard = React.lazy(() => import('@pages/Dashboard/index.jsx'));
+const News = React.lazy(() => import('@pages/News/index.jsx'));
+const Map = React.lazy(() => import('@pages/Map/index.jsx'));
+const Analysis = React.lazy(() => import('@pages/Analysis/index.jsx'));
+const Profile = React.lazy(() => import('@pages/Profile/index.jsx'));
+const Settings = React.lazy(() => import('@pages/Settings/index.jsx'));
 
 const publicRoutes = [
     {
