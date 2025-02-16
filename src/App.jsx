@@ -1,28 +1,16 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
-
-// Pages
-import News from './pages/News';
-import Settings from './pages/Settings';
-
-// Layouts
-import MainLayout from './layouts/MainLayout';
-
-// Import custom styles
-import './styles/index.scss';
+import React from 'react'
+import { Card } from 'primereact/card'
 
 const App = () => {
   return (
-    <RecoilRoot>
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route index element={<News />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </RecoilRoot>
-  );
-};
+    <div className="min-h-screen surface-ground">
+      <div className="p-4">
+        <Card title="News Feed" className="shadow-2">
+          <p>Welcome to E6Intel PIMAS</p>
+        </Card>
+      </div>
+    </div>
+  )
+}
 
-export default App;
+export default App
