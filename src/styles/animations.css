@@ -1,3 +1,30 @@
+/* Base transitions */
+:root {
+    --transition-duration: 200ms;
+    --transition-timing: ease-out;
+    --modal-transition: 300ms;
+    --hover-lift: translateY(-2px);
+}
+
+/* Transition base classes */
+.transition-base {
+    transition-property: transform, opacity;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: var(--transition-timing);
+}
+
+.transition-transform {
+    transition-property: transform;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: var(--transition-timing);
+}
+
+.transition-opacity {
+    transition-property: opacity;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: var(--transition-timing);
+}
+
 /* Fade animations */
 .fade-enter {
     opacity: 0;
@@ -7,7 +34,6 @@
 .fade-enter-active {
     opacity: 1;
     transform: scale(1);
-    transition: opacity 200ms ease-out, transform 200ms ease-out;
 }
 
 .fade-exit {
@@ -18,35 +44,40 @@
 .fade-exit-active {
     opacity: 0;
     transform: scale(0.9);
-    transition: opacity 200ms ease-out, transform 200ms ease-out;
 }
 
 /* Slide animations */
 .slide-up {
-    animation: slideUp 0.3s ease-out forwards;
+    animation-name: slideUp;
+    animation-duration: var(--transition-duration);
+    animation-timing-function: var(--transition-timing);
+    animation-fill-mode: forwards;
 }
 
 .slide-down {
-    animation: slideDown 0.3s ease-out forwards;
+    animation-name: slideDown;
+    animation-duration: var(--transition-duration);
+    animation-timing-function: var(--transition-timing);
+    animation-fill-mode: forwards;
 }
 
 @keyframes slideUp {
-    from {
+    0% {
         opacity: 0;
         transform: translateY(20px);
     }
-    to {
+    100% {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
 @keyframes slideDown {
-    from {
+    0% {
         opacity: 0;
         transform: translateY(-20px);
     }
-    to {
+    100% {
         opacity: 1;
         transform: translateY(0);
     }
@@ -61,63 +92,116 @@
 .quick-view-enter-active {
     transform: translateY(0);
     opacity: 1;
-    transition: all 150ms ease-out;
+}
+
+.quick-view-panel {
+    transform-origin: center top;
 }
 
 /* Modal animations */
 .modal-overlay {
     backdrop-filter: blur(4px);
-    transition: backdrop-filter 300ms ease-out;
+    transition: backdrop-filter var(--modal-transition) var(--transition-timing);
 }
 
 .modal-content {
     transform-origin: center;
-    animation: modalZoomIn 300ms ease-out forwards;
 }
 
-@keyframes modalZoomIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.modal-enter {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.modal-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: transform var(--modal-transition) var(--transition-timing),
+                opacity var(--modal-transition) var(--transition-timing);
+}
+
+.modal-exit {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.modal-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: transform var(--modal-transition) var(--transition-timing),
+                opacity var(--modal-transition) var(--transition-timing);
 }
 
 /* Card hover effects */
 .news-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform var(--transition-duration) var(--transition-timing),
+                box-shadow var(--transition-duration) var(--transition-timing);
 }
 
 .news-card:hover {
-    transform: translateY(-2px);
+    transform: var(--hover-lift);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Theme-based transitions */
-[data-theme="light"] .theme-transition {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+/* Theme transitions */
+.theme-transition {
+    transition: background-color var(--transition-duration) var(--transition-timing),
+                color var(--transition-duration) var(--transition-timing),
+                border-color var(--transition-duration) var(--transition-timing);
 }
 
-[data-theme="dark"] .theme-transition {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-/* Loading state animations */
+/* Loading animations */
 .loading-pulse {
-    animation: pulse 1.5s ease-in-out infinite;
+    animation: pulse 1.5s var(--transition-timing) infinite;
 }
 
 @keyframes pulse {
-    0% {
+    0%, 100% {
         opacity: 0.6;
     }
     50% {
         opacity: 0.3;
     }
-    100% {
-        opacity: 0.6;
+}
+
+/* Image hover effects */
+.image-zoom {
+    overflow: hidden;
+}
+
+.image-zoom img {
+    transition: transform var(--transition-duration) var(--transition-timing);
+}
+
+.image-zoom:hover img {
+    transform: scale(1.05);
+}
+
+/* Utility classes */
+.hover-lift {
+    transition: transform var(--transition-duration) var(--transition-timing);
+}
+
+.hover-lift:hover {
+    transform: var(--hover-lift);
+}
+
+.hover-shadow {
+    transition: box-shadow var(--transition-duration) var(--transition-timing);
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
