@@ -3,9 +3,9 @@ import { Card } from 'primereact/card';
 import { BreadCrumb } from 'primereact/breadcrumb';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
-import NewsFeed from '@components/News/NewsFeed';
+import NewsFeed from '../../components/News/NewsFeed';
 import { useNavigate } from 'react-router-dom';
-import { NEWS_ROUTES } from '@/constants';
+import { NEWS_ROUTES } from '../../constants';
 
 const News = () => {
     const menuRef = useRef(null);
