@@ -7,8 +7,12 @@ export default defineConfig({
     react({
       include: "**/*.{jsx,tsx}",
       babel: {
+        presets: [
+          '@babel/preset-env',
+          ['@babel/preset-react', { runtime: 'automatic' }]
+        ],
         plugins: [
-          ['@babel/plugin-transform-react-jsx']
+          '@babel/plugin-transform-react-jsx'
         ]
       }
     })
@@ -30,8 +34,9 @@ export default defineConfig({
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
   server: {
-    port: 5173,
+    port: 3000,
     host: true,
+    open: true,
     hmr: {
       overlay: true
     }
