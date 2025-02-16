@@ -36,15 +36,36 @@ const Login = () => {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        const { error } = await signIn(values.email, values.password);
-        if (error) throw error;
-        showSuccess("Login successful", "Welcome back!");
-        navigate("/dashboard");
+        const { data, error } = await signIn(values.email, values.password);
+        
+        if (error) {
+          let errorMessage = "Login failed. ";
+          
+          // Handle specific error cases
+          switch (error.message) {
+            case "Invalid login credentials":
+              errorMessage += "Invalid email or password.";
+              break;
+            case "Email not confirmed":
+              errorMessage += "Please verify your email address.";
+              break;
+            case "Invalid email":
+              errorMessage += "Please enter a valid email address.";
+              break;
+            default:
+              errorMessage += error.message || "Please check your credentials and try again.";
+          }
+          
+          showError("Login Failed", errorMessage);
+          throw error;
+        }
+
+        if (data?.user) {
+          showSuccess("Login successful", `Welcome back, ${data.user.email}!`);
+          navigate("/dashboard");
+        }
       } catch (error) {
-        showError(
-          "Login failed",
-          error.message || "Please check your credentials and try again"
-        );
+        console.error("Login error details:", error);
       } finally {
         setLoading(false);
       }
