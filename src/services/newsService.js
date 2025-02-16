@@ -7,6 +7,16 @@ class NewsService {
         this.gNewsApiKey = import.meta.env.VITE_GNEWS_API_KEY;
         this.mediastackApiKey = import.meta.env.VITE_MEDIASTACK_API_KEY;
         this.cacheExpiryMinutes = 5;
+        this.sources = {
+            guardian: true,
+            newsapi: true,
+            gnews: true,
+            mediastack: true
+        };
+    }
+
+    setSources(sources) {
+        this.sources = { ...this.sources, ...sources };
     }
 
     async logApiCall(apiName, endpoint, status, responseTime, error = null) {
@@ -166,11 +176,62 @@ class NewsService {
         }
     }
 
-    async fetchMediastack(query = '') {
+    validateMediastackArticle(article) {
+        const required = ['title', 'description', 'url', 'source', 'published_at'];
+        const isValid = required.every(field => {
+            const value = article[field];
+            return value !== undefined && value !== null && value !== '';
+        });
+
+        if (!isValid) {
+            console.warn('Invalid Mediastack article:', article);
+            return false;
+        }
+
+        // Validate URL format
+        try {
+            new URL(article.url);
+        } catch {
+            console.warn('Invalid URL in Mediastack article:', article);
+            return false;
+        }
+
+        // Validate date format
+        if (isNaN(Date.parse(article.published_at))) {
+            console.warn('Invalid date in Mediastack article:', article);
+            return false;
+        }
+
+        return true;
+    }
+
+    async fetchMediastack(query = '', options = {}) {
         const startTime = Date.now();
         try {
+            const {
+                countries = [],
+                categories = [],
+                sources = [],
+                limit = 100,
+                offset = 0,
+                sort = 'published_desc'
+            } = options;
+
+            const params = new URLSearchParams({
+                access_key: this.mediastackApiKey,
+                languages: 'en',
+                keywords: query,
+                limit: limit.toString(),
+                offset: offset.toString(),
+                sort
+            });
+
+            if (countries.length > 0) params.append('countries', countries.join(','));
+            if (categories.length > 0) params.append('categories', categories.join(','));
+            if (sources.length > 0) params.append('sources', sources.join(','));
+
             const response = await fetch(
-                `http://api.mediastack.com/v1/news?access_key=${this.mediastackApiKey}&languages=en&keywords=${query}`
+                `http://api.mediastack.com/v1/news?${params.toString()}`
             );
             
             const responseTime = Date.now() - startTime;
@@ -179,16 +240,29 @@ class NewsService {
             if (!response.ok) throw new Error('Mediastack API request failed');
 
             const data = await response.json();
-            return data.data.map(article => ({
-                title: article.title,
-                content: article.description,
-                url: article.url,
-                image_url: article.image,
-                source_name: article.source,
-                source_id: null,
-                published_at: article.published_at,
-                category: this.categorizeArticle(article.category || article.title)
-            }));
+            
+            if (!data.data || !Array.isArray(data.data)) {
+                throw new Error('Invalid Mediastack API response format');
+            }
+
+            return data.data
+                .filter(article => this.validateMediastackArticle(article))
+                .map(article => ({
+                    title: article.title,
+                    content: article.description,
+                    url: article.url,
+                    image_url: article.image,
+                    source_name: article.source,
+                    source_id: null,
+                    published_at: article.published_at,
+                    category: this.categorizeArticle(article.category || article.title),
+                    provider: 'mediastack',
+                    metadata: {
+                        country: article.country,
+                        category: article.category,
+                        language: article.language
+                    }
+                }));
         } catch (error) {
             console.error('Error fetching from Mediastack:', error);
             await this.logApiCall('Mediastack', '/news', 500, Date.now() - startTime, error.message);
@@ -214,26 +288,58 @@ class NewsService {
         return 'geopolitical'; // Default category
     }
 
-    async fetchAllNews(query = '') {
+    async fetchAllNews(query = '', options = {}) {
         // First check cache
         const cachedNews = await this.getCachedNews();
-        if (cachedNews.length > 0) {
-            return cachedNews;
+        if (cachedNews.length > 0 && !options.bypass_cache) {
+            return this.filterNewsBySource(cachedNews);
         }
 
-        // Fetch from all sources in parallel
-        const [guardianNews, newsApiNews, gNews, mediastackNews] = await Promise.all([
-            this.fetchGuardianNews(query),
-            this.fetchNewsAPI(query),
-            this.fetchGNews(query),
-            this.fetchMediastack(query)
-        ]);
+        // Prepare API calls based on enabled sources
+        const apiCalls = [];
+        
+        if (this.sources.guardian) {
+            apiCalls.push(this.fetchGuardianNews(query));
+        }
+        if (this.sources.newsapi) {
+            apiCalls.push(this.fetchNewsAPI(query));
+        }
+        if (this.sources.gnews) {
+            apiCalls.push(this.fetchGNews(query));
+        }
+        if (this.sources.mediastack) {
+            apiCalls.push(this.fetchMediastack(query, options.mediastack));
+        }
 
-        // Combine and cache results
-        const allNews = [...guardianNews, ...newsApiNews, ...gNews, ...mediastackNews];
-        await this.cacheNews(allNews);
+        // Fetch from enabled sources in parallel
+        const results = await Promise.all(apiCalls);
+        
+        // Combine results
+        const allNews = results.flat();
+        
+        // Cache if we have results
+        if (allNews.length > 0) {
+            await this.cacheNews(allNews);
+        }
 
-        return allNews;
+        return this.filterNewsBySource(allNews);
+    }
+
+    filterNewsBySource(articles) {
+        return articles.filter(article => {
+            const source = article.provider || this.determineProvider(article.source_name);
+            return this.sources[source];
+        });
+    }
+
+    determineProvider(sourceName) {
+        // Map source names to providers
+        const sourceMap = {
+            'The Guardian': 'guardian',
+            'NewsAPI': 'newsapi',
+            'GNews': 'gnews'
+        };
+        return sourceMap[sourceName] || 'mediastack';
     }
 }
 
