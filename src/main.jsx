@@ -9,8 +9,8 @@ import 'primeicons/primeicons.css';
 
 // Import Bootstrap and custom styles
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '@styles/theme.css';
-import '@styles/animations.css';
+import './assets/scss/theme.scss';
+import './styles/animations.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
