@@ -2,6 +2,43 @@ import { supabase } from '../config/supabase';
 import { CACHE_DURATION, API_RETRY_ATTEMPTS, API_TIMEOUT } from '../constants';
 import axios from 'axios';
 
+// Mock categories for initial setup
+const categories = [
+    'Geopolitical',
+    'Security Alerts',
+    'Natural Disasters',
+    'Social Movements',
+    'Financial & Economic'
+];
+
+// Mock data for initial setup
+const mockArticles = [
+    {
+        id: 1,
+        title: 'Global Security Update',
+        summary: 'Recent developments in international security measures...',
+        content: 'Detailed analysis of global security trends and their implications...',
+        category: 'Security Alerts',
+        published_at: new Date().toISOString(),
+        image_url: 'https://picsum.photos/800/400',
+        sentiment: 'neutral',
+        bias: 'balanced',
+        themes: ['security', 'global', 'technology']
+    },
+    {
+        id: 2,
+        title: 'Economic Impact Analysis',
+        summary: 'Analysis of recent economic developments...',
+        content: 'In-depth review of economic indicators and market trends...',
+        category: 'Financial & Economic',
+        published_at: new Date().toISOString(),
+        image_url: 'https://picsum.photos/800/400',
+        sentiment: 'positive',
+        bias: 'neutral',
+        themes: ['economy', 'markets', 'finance']
+    }
+];
+
 class NewsService {
     constructor() {
         this.guardianApiKey = import.meta.env.VITE_GUARDIAN_API_KEY;
@@ -18,6 +55,8 @@ class NewsService {
         this.axios = axios.create({
             timeout: API_TIMEOUT
         });
+        this.articles = mockArticles;
+        this.categories = categories;
     }
 
     async retryWithBackoff(fn, retries = API_RETRY_ATTEMPTS) {
@@ -355,6 +394,54 @@ class NewsService {
             'GNews': 'gnews'
         };
         return sourceMap[sourceName] || 'mediastack';
+    }
+
+    async getArticles() {
+        try {
+            // TODO: Replace with actual Supabase query
+            return {
+                data: this.articles,
+                error: null
+            };
+        } catch (error) {
+            console.error('Error fetching articles:', error);
+            return {
+                data: null,
+                error: 'Failed to fetch articles'
+            };
+        }
+    }
+
+    async getCategories() {
+        try {
+            // TODO: Replace with actual Supabase query
+            return {
+                data: this.categories,
+                error: null
+            };
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            return {
+                data: null,
+                error: 'Failed to fetch categories'
+            };
+        }
+    }
+
+    async getArticleById(id) {
+        try {
+            const article = this.articles.find(a => a.id === id);
+            return {
+                data: article,
+                error: article ? null : 'Article not found'
+            };
+        } catch (error) {
+            console.error('Error fetching article:', error);
+            return {
+                data: null,
+                error: 'Failed to fetch article'
+            };
+        }
     }
 }
 

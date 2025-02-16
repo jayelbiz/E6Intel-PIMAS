@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Container } from "reactstrap";
 import { Card } from 'primereact/card';
 import { TabView, TabPanel } from 'primereact/tabview';
@@ -8,7 +8,7 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { Dialog } from 'primereact/dialog';
-import { useNews } from '../../contexts/NewsContext';
+import { useNews } from '@/contexts/NewsContext';
 
 const News = () => {
   document.title = "News | E6Intel PIMAS";
