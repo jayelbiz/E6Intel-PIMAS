@@ -14,21 +14,22 @@ const Analysis = React.lazy(() => import('../pages/Analysis'));
 const Profile = React.lazy(() => import('../pages/Profile'));
 const Settings = React.lazy(() => import('../pages/Settings'));
 
+// Route configurations
 const publicRoutes = [
-    { path: '/login', component: Login },
-    { path: '/register', component: Register },
-    { path: '/forgot-password', component: ForgotPassword },
-    { path: '*', component: () => <Navigate to="/login" /> }
+    { path: '/login', element: <Login /> },
+    { path: '/register', element: <Register /> },
+    { path: '/forgot-password', element: <ForgotPassword /> },
+    { path: '*', element: <Navigate to="/login" /> }
 ];
 
 const protectedRoutes = [
-    { path: '/', component: Dashboard },
-    { path: '/news', component: News },
-    { path: '/news/:id', component: News },
-    { path: '/map', component: Map },
-    { path: '/analysis', component: Analysis },
-    { path: '/profile', component: Profile },
-    { path: '/settings', component: Settings }
+    { path: '/', element: <Dashboard /> },
+    { path: '/news', element: <News /> },
+    { path: '/news/:id', element: <News /> },
+    { path: '/map', element: <Map /> },
+    { path: '/analysis', element: <Analysis /> },
+    { path: '/profile', element: <Profile /> },
+    { path: '/settings', element: <Settings /> }
 ];
 
 export { publicRoutes, protectedRoutes };
