@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Menubar } from "primereact/menubar";
 import { Badge } from "primereact/badge";
 import { Button } from "primereact/button";
 import { Avatar } from "primereact/avatar";
@@ -12,9 +11,10 @@ import "./styles.scss";
 
 const GlobalNavbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const menuRef = useRef(null);
   const { unreadAlerts = 0 } = useSelector((state) => state.alerts || {});
-  
+
   const userMenuItems = [
     {
       label: "Profile",
@@ -56,6 +56,10 @@ const GlobalNavbar = () => {
           )}
         </i>
       </Link>
+      <Link to="/news" className="px-3 nav-link">
+        <i className="bx bx-news me-2"></i>
+        <span>News</span>
+      </Link>
       <Button
         icon="pi pi-user"
         rounded
@@ -90,14 +94,6 @@ const GlobalNavbar = () => {
       className: location.pathname === "/map" ? "active" : "",
       command: () => {
         window.location.href = "/map";
-      }
-    },
-    {
-      label: "News",
-      icon: "pi pi-globe",
-      className: location.pathname === "/news" ? "active" : "",
-      command: () => {
-        window.location.href = "/news";
       }
     }
   ];

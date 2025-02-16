@@ -4,22 +4,23 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { formatDistanceToNow } from 'date-fns';
 import { NEWS_CATEGORY_LABELS, NEWS_CATEGORY_COLORS } from '@/constants';
+import '@styles/animations.css';
 
 const NewsCard = ({ article, onViewDetails }) => {
     const header = (
-        <div className="position-relative" id={`news-card-header-${article.id}`}>
+        <div className="relative overflow-hidden" id={`news-card-header-${article.id}`}>
             <img 
                 src={article.image_url || '/placeholder-news.jpg'} 
                 alt={article.title}
-                className="card-img-top"
-                style={{ height: '160px', objectFit: 'cover' }}
+                className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
                 id={`news-image-${article.id}`}
             />
-            <div className="position-absolute bottom-0 start-0 w-100 p-2" style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <div className="absolute bottom-0 start-0 w-100 p-2" style={{ background: 'rgba(0,0,0,0.5)' }}>
                 <Tag 
                     value={NEWS_CATEGORY_LABELS[article.category]} 
                     severity={NEWS_CATEGORY_COLORS[article.category]}
-                    className="me-2 rounded"
+                    className="me-2 rounded slide-down"
+                    style={{ animationDelay: '100ms' }}
                     id={`news-category-${article.id}`}
                 />
                 <span className="text-white font-size-13">{article.source_name}</span>
@@ -28,8 +29,8 @@ const NewsCard = ({ article, onViewDetails }) => {
     );
 
     const footer = (
-        <div className="d-flex justify-content-between align-items-center" id={`news-card-footer-${article.id}`}>
-            <span className="text-muted font-size-13">
+        <div className="d-flex justify-content-between align-items-center pt-2" id={`news-card-footer-${article.id}`}>
+            <span className="text-sm text-500">
                 {formatDistanceToNow(new Date(article.published_at), { addSuffix: true })}
             </span>
             <div className="d-flex gap-2">
@@ -42,10 +43,10 @@ const NewsCard = ({ article, onViewDetails }) => {
                 />
                 <Button 
                     icon="pi pi-external-link"
-                    className="btn btn-soft-primary btn-sm p-button-rounded"
+                    className="p-button-rounded p-button-text"
+                    onClick={(e) => onViewDetails(article, e)}
                     tooltip="View Details"
                     tooltipOptions={{ position: 'top' }}
-                    onClick={() => onViewDetails(article)}
                     id={`news-details-btn-${article.id}`}
                 />
             </div>
@@ -56,15 +57,15 @@ const NewsCard = ({ article, onViewDetails }) => {
         <Card 
             header={header} 
             footer={footer}
-            className="mb-3 shadow-none border"
+            className="news-card mb-3 theme-transition border shadow-none"
             onClick={() => onViewDetails(article)}
             id={`news-card-${article.id}`}
         >
             <div className="card-body p-3">
-                <h5 className="card-title font-size-16 mb-2 text-truncate-2">
+                <h5 className="text-xl font-semibold mb-2 line-clamp-2 hover:text-primary transition-colors duration-200">
                     {article.title}
                 </h5>
-                <p className="card-text text-muted mb-3 text-truncate-3">
+                <p className="line-clamp-3 text-700">
                     {article.summary || article.content}
                 </p>
                 {article.news_analysis && (
