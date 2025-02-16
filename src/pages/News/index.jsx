@@ -268,8 +268,8 @@ const News = () => {
                   )}
                   <div className="article-meta">
                     <div className="d-flex justify-content-between align-items-center">
-                      <span>{selectedArticle.source}</span>
-                      <span>{new Date(selectedArticle.published_at).toLocaleString()}</span>
+                      <span className="source-badge">{selectedArticle.source}</span>
+                      <span className="date-badge">{new Date(selectedArticle.published_at).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -285,16 +285,23 @@ const News = () => {
               </div>
               <div className="col-md-4">
                 {processedContent.locations.length > 0 && (
-                  <Card title="Locations" className="mb-4">
+                  <Card className="mb-4">
                     <div className="location-card">
+                      <div className="location-title">
+                        <i className="pi pi-map-marker" />
+                        Mentioned Locations
+                      </div>
                       <ul className="location-list">
                         {processedContent.locations.map((location, index) => (
                           <li key={index}>
-                            {location.type === 'country' ? '🌍' : '📍'} {location.name}
+                            <span className="location-icon">
+                              {location.type === 'country' ? '🌍' : '📍'}
+                            </span>
+                            <span className="location-name">{location.name}</span>
                             {location.coordinates && (
-                              <small className="text-muted ms-2">
+                              <span className="location-coords">
                                 ({location.coordinates.lat.toFixed(2)}, {location.coordinates.lng.toFixed(2)})
-                              </small>
+                              </span>
                             )}
                           </li>
                         ))}
@@ -302,21 +309,43 @@ const News = () => {
                     </div>
                   </Card>
                 )}
-                <Card title="AI Analysis">
-                  <div className="mb-3">
-                    <h6>Sentiment</h6>
-                    <Badge value={selectedArticle.sentiment} severity={selectedArticle.sentiment === 'positive' ? 'success' : selectedArticle.sentiment === 'negative' ? 'danger' : 'warning'} />
-                  </div>
-                  <div className="mb-3">
-                    <h6>Bias Detection</h6>
-                    <Badge value={selectedArticle.bias} severity="info" />
-                  </div>
-                  <div className="mb-3">
-                    <h6>Key Themes</h6>
-                    <div className="d-flex flex-wrap gap-2">
-                      {selectedArticle.themes?.map((theme, i) => (
-                        <Badge key={i} value={theme} />
-                      ))}
+                <Card>
+                  <div className="ai-analysis-card">
+                    <div className="analysis-section">
+                      <h6>
+                        <i className="pi pi-heart" />
+                        Sentiment
+                      </h6>
+                      <div className="badge-container">
+                        <Badge 
+                          value={selectedArticle.sentiment} 
+                          severity={
+                            selectedArticle.sentiment === 'positive' ? 'success' : 
+                            selectedArticle.sentiment === 'negative' ? 'danger' : 
+                            'warning'
+                          } 
+                        />
+                      </div>
+                    </div>
+                    <div className="analysis-section">
+                      <h6>
+                        <i className="pi pi-compass" />
+                        Bias Detection
+                      </h6>
+                      <div className="badge-container">
+                        <Badge value={selectedArticle.bias} severity="info" />
+                      </div>
+                    </div>
+                    <div className="analysis-section">
+                      <h6>
+                        <i className="pi pi-tags" />
+                        Key Themes
+                      </h6>
+                      <div className="badge-container">
+                        {selectedArticle.themes?.map((theme, i) => (
+                          <Badge key={i} value={theme} />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </Card>
