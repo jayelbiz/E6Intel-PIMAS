@@ -5,42 +5,20 @@ import { useAuth } from "../hooks/useAuth";
 // Import pages
 import Dashboard from "../pages/Dashboard/index";
 
+// Temporarily disable auth check for development
 const Authmiddleware = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="auth-page-wrapper pt-5">
-        <div className="auth-page-content">
-          <div className="container">
-            <div className="row justify-content-center">
-              <div className="col-md-8 col-lg-6 col-xl-5 text-center">
-                <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return user ? children : <Navigate to="/login" />;
+  // Always return children for development
+  return children;
 };
 
 // Public routes that don't require authentication
 export const publicRoutes = [
-  { path: "/login", component: React.lazy(() => import("../pages/Authentication/Login")) },
-  { path: "/register", component: React.lazy(() => import("../pages/Authentication/Register")) },
-  { path: "/forgot-password", component: React.lazy(() => import("../pages/Authentication/ForgotPassword")) },
-  { path: "/reset-password", component: React.lazy(() => import("../pages/Authentication/ResetPassword")) },
-  { path: "/auth/callback", component: React.lazy(() => import("../pages/Authentication/AuthCallback")) },
-  // Redirect root to login for unauthenticated users
-  { path: "/", component: () => <Navigate to="/login" /> },
+  // Redirect root to dashboard for development
+  { path: "/", component: () => <Navigate to="/dashboard" /> },
 ];
 
 // Protected routes that require authentication
 export const protectedRoutes = [
-  { path: "/", exact: true, component: () => <Navigate to="/dashboard" /> },
   { path: "/dashboard", component: Dashboard },
   // Add more protected routes here as they are implemented
 ];
