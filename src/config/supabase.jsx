@@ -73,15 +73,37 @@ export const auth = {
         email,
         password,
         options: {
-          data: metadata,
+          data: {
+            firstName: metadata.firstName,
+            lastName: metadata.lastName
+          },
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
-
+      
       if (error) throw error;
+
+      // If signup successful, create user profile
+      if (data?.user) {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .upsert({
+            id: data.user.id,
+            email: data.user.email,
+            first_name: metadata.firstName,
+            last_name: metadata.lastName,
+            status: 'pending_verification'
+          });
+
+        if (profileError) {
+          console.error('Error creating user profile:', profileError);
+          // Don't throw here, as the user is already created
+        }
+      }
+
       return { data, error: null };
     } catch (error) {
-      console.error('Sign-up error:', error);
+      console.error('Sign up error:', error);
       return { data: null, error };
     }
   },

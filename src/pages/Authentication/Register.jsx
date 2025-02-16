@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { Checkbox } from 'primereact/checkbox';
 
 // Custom hooks
 import { useAuth } from "../../hooks/useAuth";
@@ -143,41 +144,43 @@ const Register = () => {
       <ToastComponent />
       
       <div className="w-full max-w-30rem p-4">
-        <Card className="shadow-2">
+        <Card className="shadow-4">
           <div className="text-center mb-5">
-            <img src={logo} alt="logo" height="50" className="mb-3" />
-            <div className="text-900 text-3xl font-medium mb-3">Create Account</div>
-            <span className="text-600 font-medium">Join E6Intel</span>
+            <div className="mb-4">
+              <img src={logo} alt="Logo" height={50} className="mx-auto" />
+            </div>
+            <h5 className="text-primary text-2xl font-medium mb-2">Create Account</h5>
+            <p className="text-600 mb-0">Join E6 Intel and start analyzing.</p>
           </div>
 
           <form onSubmit={formik.handleSubmit} className="p-fluid">
-            <div className="flex gap-3 mb-4">
-              <div className="flex-1">
+            <div className="grid">
+              <div className="col-12 md:col-6 mb-4">
                 <span className="p-float-label">
                   <InputText
                     id="firstName"
                     name="firstName"
                     value={formik.values.firstName}
                     onChange={formik.handleChange}
-                    className={formik.errors.firstName && formik.touched.firstName ? 'p-invalid' : ''}
+                    className={formik.errors.firstName && formik.touched.firstName ? 'p-invalid w-full' : 'w-full'}
                   />
-                  <label htmlFor="firstName">First Name</label>
+                  <label htmlFor="firstName">First Name*</label>
                 </span>
                 {formik.errors.firstName && formik.touched.firstName && (
                   <small className="p-error">{formik.errors.firstName}</small>
                 )}
               </div>
-              
-              <div className="flex-1">
+
+              <div className="col-12 md:col-6 mb-4">
                 <span className="p-float-label">
                   <InputText
                     id="lastName"
                     name="lastName"
                     value={formik.values.lastName}
                     onChange={formik.handleChange}
-                    className={formik.errors.lastName && formik.touched.lastName ? 'p-invalid' : ''}
+                    className={formik.errors.lastName && formik.touched.lastName ? 'p-invalid w-full' : 'w-full'}
                   />
-                  <label htmlFor="lastName">Last Name</label>
+                  <label htmlFor="lastName">Last Name*</label>
                 </span>
                 {formik.errors.lastName && formik.touched.lastName && (
                   <small className="p-error">{formik.errors.lastName}</small>
@@ -186,15 +189,16 @@ const Register = () => {
             </div>
 
             <div className="mb-4">
-              <span className="p-float-label">
+              <span className="p-float-label p-input-icon-right">
+                <i className="pi pi-envelope" />
                 <InputText
                   id="email"
                   name="email"
                   value={formik.values.email}
                   onChange={formik.handleChange}
-                  className={formik.errors.email && formik.touched.email ? 'p-invalid' : ''}
+                  className={formik.errors.email && formik.touched.email ? 'p-invalid w-full' : 'w-full'}
                 />
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">Email*</label>
               </span>
               {formik.errors.email && formik.touched.email && (
                 <small className="p-error">{formik.errors.email}</small>
@@ -211,9 +215,9 @@ const Register = () => {
                   toggleMask
                   header={passwordHeader}
                   footer={passwordFooter}
-                  className={formik.errors.password && formik.touched.password ? 'p-invalid' : ''}
+                  className={formik.errors.password && formik.touched.password ? 'p-invalid w-full' : 'w-full'}
                 />
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">Password*</label>
               </span>
               {formik.errors.password && formik.touched.password && (
                 <small className="p-error">{formik.errors.password}</small>
@@ -229,9 +233,9 @@ const Register = () => {
                   onChange={formik.handleChange}
                   toggleMask
                   feedback={false}
-                  className={formik.errors.confirmPassword && formik.touched.confirmPassword ? 'p-invalid' : ''}
+                  className={formik.errors.confirmPassword && formik.touched.confirmPassword ? 'p-invalid w-full' : 'w-full'}
                 />
-                <label htmlFor="confirmPassword">Confirm Password</label>
+                <label htmlFor="confirmPassword">Confirm Password*</label>
               </span>
               {formik.errors.confirmPassword && formik.touched.confirmPassword && (
                 <small className="p-error">{formik.errors.confirmPassword}</small>
@@ -239,17 +243,18 @@ const Register = () => {
             </div>
 
             <div className="mb-4 flex align-items-center">
-              <input
-                type="checkbox"
-                id="acceptTerms"
-                name="acceptTerms"
-                checked={formik.values.acceptTerms}
-                onChange={formik.handleChange}
-                className="mr-2"
-              />
-              <label htmlFor="acceptTerms" className="text-sm">
-                I agree to the <Link to="/terms" className="text-primary">Terms & Conditions</Link>
-              </label>
+              <div className="p-field-checkbox">
+                <Checkbox
+                  id="acceptTerms"
+                  name="acceptTerms"
+                  checked={formik.values.acceptTerms}
+                  onChange={formik.handleChange}
+                  className={formik.errors.acceptTerms && formik.touched.acceptTerms ? 'p-invalid' : ''}
+                />
+                <label htmlFor="acceptTerms" className="ml-2">
+                  I agree to the <Link to="/terms" className="text-primary font-medium">Terms & Conditions</Link>*
+                </label>
+              </div>
             </div>
             {formik.errors.acceptTerms && formik.touched.acceptTerms && (
               <small className="p-error block mb-4">{formik.errors.acceptTerms}</small>
@@ -279,7 +284,7 @@ const Register = () => {
 
             <div className="text-center mt-4">
               <span className="text-600 font-normal text-sm">Already have an account? </span>
-              <Link to="/login" className="text-primary font-normal text-sm">Sign In</Link>
+              <Link to="/login" className="text-primary font-medium">Sign In</Link>
             </div>
           </form>
         </Card>

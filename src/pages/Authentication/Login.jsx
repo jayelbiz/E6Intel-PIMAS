@@ -100,6 +100,12 @@ const Login = () => {
                   </div>
                   <h5 className="text-primary text-2xl font-medium mb-2">Welcome Back!</h5>
                   <p className="text-600 mb-0">Sign in to continue to E6 Intel.</p>
+                  <p className="text-600 mt-2">
+                    New to E6 Intel?{' '}
+                    <Link to="/register" className="text-primary font-medium">
+                      Create an account
+                    </Link>
+                  </p>
                 </div>
 
                 <form onSubmit={formik.handleSubmit} className="p-fluid">

@@ -30,8 +30,11 @@ const Authmiddleware = ({ children }) => {
 // Public routes that don't require authentication
 export const publicRoutes = [
   { path: "/login", component: React.lazy(() => import("../pages/Authentication/Login")) },
+  { path: "/register", component: React.lazy(() => import("../pages/Authentication/Register")) },
   { path: "/forgot-password", component: React.lazy(() => import("../pages/Authentication/ForgotPassword")) },
   { path: "/auth/callback", component: React.lazy(() => import("../pages/Authentication/AuthCallback")) },
+  // Redirect root to login for unauthenticated users
+  { path: "/", component: () => <Navigate to="/login" /> },
 ];
 
 // Protected routes that require authentication
