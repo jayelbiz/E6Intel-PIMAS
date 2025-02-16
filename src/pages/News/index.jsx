@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container } from "reactstrap";
 import { Card } from 'primereact/card';
 import { TabView, TabPanel } from 'primereact/tabview';
@@ -10,6 +10,8 @@ import { Badge } from 'primereact/badge';
 import { Dialog } from 'primereact/dialog';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useNews } from '@/contexts/NewsContext';
+import { processContent, getLocationSummary } from '@/utils/contentProcessor';
+import '@/styles/news.scss';
 
 const LoadingState = () => (
   <div className="card flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
@@ -22,11 +24,21 @@ const News = () => {
   
   const { articles, loading, categories, error } = useNews();
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [processedContent, setProcessedContent] = useState({ html: '', locations: [] });
   const [filters, setFilters] = useState({
     category: 'all',
     sortBy: 'recent',
     search: ''
   });
+
+  useEffect(() => {
+    if (selectedArticle) {
+      const { html, locations } = processContent(selectedArticle.content);
+      setProcessedContent({ html, locations });
+    } else {
+      setProcessedContent({ html: '', locations: [] });
+    }
+  }, [selectedArticle]);
 
   const sortOptions = [
     { label: 'Most Recent', value: 'recent' },
@@ -100,6 +112,9 @@ const News = () => {
   };
 
   const renderArticleCard = (article) => {
+    const { locations } = processContent(article.content);
+    const locationSummary = getLocationSummary(locations);
+
     return (
       <div className="col-12 col-md-6 col-lg-4 p-2">
         <Card className="h-100 cursor-pointer hover-lift" onClick={() => setSelectedArticle(article)}>
@@ -123,8 +138,13 @@ const News = () => {
             </div>
             <h5 className="card-title mb-2">{article.title}</h5>
             <p className="card-text text-truncate-2">{article.summary}</p>
-            <div className="d-flex align-items-center mt-2">
+            <div className="d-flex align-items-center mt-2 gap-2">
               <small className="text-muted">{article.source}</small>
+              {locations.length > 0 && (
+                <small className="text-muted">
+                  <i className="pi pi-map-marker" /> {locationSummary}
+                </small>
+              )}
             </div>
             
             {/* AI Analysis Preview */}
@@ -229,24 +249,33 @@ const News = () => {
           header={selectedArticle?.title}
           style={{ width: '90vw', maxWidth: '1200px' }}
           maximizable
+          className="news-dialog"
         >
           {selectedArticle && (
             <div className="row">
               <div className="col-md-8">
-                {selectedArticle.image_url && (
-                  <img
-                    src={selectedArticle.image_url}
-                    alt=""
-                    className="w-100 mb-4"
-                    style={{ maxHeight: '400px', objectFit: 'cover' }}
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/800x400?text=No+Image';
-                    }}
-                  />
-                )}
-                <div className="article-content">
+                <div className="article-header">
+                  {selectedArticle.image_url && (
+                    <img
+                      src={selectedArticle.image_url}
+                      alt=""
+                      className="w-100"
+                      style={{ maxHeight: '400px', objectFit: 'cover' }}
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/800x400?text=No+Image';
+                      }}
+                    />
+                  )}
+                  <div className="article-meta">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span>{selectedArticle.source}</span>
+                      <span>{new Date(selectedArticle.published_at).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="article-body">
                   <p className="lead mb-4">{selectedArticle.summary}</p>
-                  <div dangerouslySetInnerHTML={{ __html: selectedArticle.content }} />
+                  <div className="article-content" dangerouslySetInnerHTML={{ __html: processedContent.html }} />
                   <div className="mt-4">
                     <a href={selectedArticle.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
                       Read Full Article
@@ -255,6 +284,24 @@ const News = () => {
                 </div>
               </div>
               <div className="col-md-4">
+                {processedContent.locations.length > 0 && (
+                  <Card title="Locations" className="mb-4">
+                    <div className="location-card">
+                      <ul className="location-list">
+                        {processedContent.locations.map((location, index) => (
+                          <li key={index}>
+                            {location.type === 'country' ? '🌍' : '📍'} {location.name}
+                            {location.coordinates && (
+                              <small className="text-muted ms-2">
+                                ({location.coordinates.lat.toFixed(2)}, {location.coordinates.lng.toFixed(2)})
+                              </small>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </Card>
+                )}
                 <Card title="AI Analysis">
                   <div className="mb-3">
                     <h6>Sentiment</h6>

@@ -1,0 +1,137 @@
+// News article styles
+.article-content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+
+    p {
+        margin-bottom: 1.5rem;
+    }
+
+    .styled-quote {
+        display: block;
+        margin: 1.5rem 0;
+        padding: 1rem 2rem;
+        border-left: 4px solid var(--primary-color);
+        background-color: var(--surface-ground);
+        font-style: italic;
+        color: var(--text-color-secondary);
+    }
+
+    .location-highlight {
+        position: relative;
+        cursor: pointer;
+        
+        &.country {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        &.city {
+            color: var(--info-color);
+            font-weight: 500;
+        }
+
+        &:hover::after {
+            content: '📍';
+            position: absolute;
+            top: -0.5em;
+            right: -1em;
+            font-size: 0.8em;
+        }
+    }
+
+    .statistic {
+        color: var(--green-600);
+        font-weight: 600;
+    }
+
+    .monetary {
+        color: var(--orange-600);
+        font-weight: 600;
+    }
+
+    .date {
+        color: var(--text-color-secondary);
+        font-weight: 500;
+    }
+
+    .organization {
+        color: var(--blue-600);
+        font-weight: 500;
+    }
+}
+
+// Modal styles
+.p-dialog {
+    .p-dialog-header {
+        background: var(--surface-card);
+        border-bottom: 1px solid var(--surface-border);
+        padding: 1.5rem;
+
+        .p-dialog-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+    }
+
+    .p-dialog-content {
+        background: var(--surface-card);
+        padding: 0;
+
+        .article-header {
+            position: relative;
+            margin-bottom: 2rem;
+
+            .article-meta {
+                position: absolute;
+                bottom: 1rem;
+                left: 1rem;
+                right: 1rem;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                padding: 1rem;
+                border-radius: 4px;
+            }
+        }
+
+        .article-body {
+            padding: 2rem;
+        }
+
+        .article-sidebar {
+            background: var(--surface-ground);
+            padding: 1.5rem;
+            border-radius: 4px;
+
+            .location-card {
+                background: var(--surface-card);
+                padding: 1rem;
+                border-radius: 4px;
+                margin-bottom: 1rem;
+
+                .location-title {
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                }
+
+                .location-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+
+                    li {
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: 0.5rem;
+
+                        &:before {
+                            content: '📍';
+                            margin-right: 0.5rem;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
