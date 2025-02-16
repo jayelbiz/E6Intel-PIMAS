@@ -1,4 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 
 const AuthContext = createContext({});
@@ -6,136 +7,126 @@ const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    let mounted = true;
-
-    const initialize = async () => {
+    // Check active sessions and sets the user
+    const initializeAuth = async () => {
       try {
-        // Check for existing session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
-        
-        if (mounted) {
-          if (session?.user) {
-            console.log('Existing session found:', session.user.id);
-            setUser(session.user);
-          } else {
-            console.log('No existing session');
-            setUser(null);
-          }
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Auth initialization error:', err);
-        if (mounted) {
-          setError(err.message);
-          setUser(null);
-          setLoading(false);
-        }
-      }
-    };
-
-    initialize();
-
-    // Subscribe to auth changes
-    const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
-      if (mounted) {
-        if (session?.user) {
-          setUser(session.user);
-        } else {
-          setUser(null);
-        }
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error('Error checking auth state:', error);
+      } finally {
         setLoading(false);
       }
-    });
-
-    return () => {
-      mounted = false;
-      authListener?.unsubscribe();
     };
+
+    initializeAuth();
   }, []);
 
-  const signIn = async (email, password) => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Sign in error:', error);
-      return { data: null, error };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signInWithProvider = async (provider) => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Provider sign in error:', error);
-      return { data: null, error };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setUser(null);
-      return { error: null };
-    } catch (error) {
-      console.error('Sign out error:', error);
-      return { error };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetPassword = async (email) => {
-    try {
-      return await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      });
-    } catch (error) {
-      console.error('Reset password error:', error);
-      throw error;
-    }
-  };
-
   const value = {
+    signUpWithEmail: async (email, password, metadata = {}) => {
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          data: metadata,
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        });
+        
+        if (error) throw error;
+        return { data, error: null };
+      } catch (error) {
+        console.error('Sign up error:', error);
+        return { data: null, error };
+      }
+    },
+
+    signInWithEmail: async (email, password) => {
+      try {
+        const { data: { session }, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        setUser(session.user);
+        return { data: session, error: null };
+      } catch (error) {
+        console.error('Sign in error:', error);
+        return { data: null, error };
+      }
+    },
+
+    signInWithProvider: async (provider) => {
+      try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) throw error;
+        return { data, error: null };
+      } catch (error) {
+        console.error('Provider sign in error:', error);
+        return { data: null, error };
+      }
+    },
+
+    signOut: async () => {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        setUser(null);
+        navigate('/login');
+        return { error: null };
+      } catch (error) {
+        console.error('Sign out error:', error);
+        return { error };
+      }
+    },
+
+    resetPassword: async (email) => {
+      try {
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/reset-password`,
+        });
+        if (error) throw error;
+        return { data, error: null };
+      } catch (error) {
+        console.error('Reset password error:', error);
+        return { data: null, error };
+      }
+    },
+
+    updateProfile: async (updates) => {
+      try {
+        const { data, error } = await supabase.auth.updateUser({ data: updates });
+        if (error) throw error;
+        setUser(data.user);
+        return { data, error: null };
+      } catch (error) {
+        console.error('Update profile error:', error);
+        return { data: null, error };
+      }
+    },
+
     user,
-    loading,
-    error,
-    signIn,
-    signInWithProvider,
-    signOut,
-    resetPassword,
+    loading
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
