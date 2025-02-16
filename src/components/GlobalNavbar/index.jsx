@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { Avatar } from 'primereact/avatar';
@@ -7,7 +7,6 @@ import { useAuth } from '@hooks/useAuth';
 
 const GlobalNavbar = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const { user, signOut } = useAuth();
 
     const handleSignOut = async () => {
@@ -18,88 +17,96 @@ const GlobalNavbar = () => {
     return (
         <div className="navbar-header">
             {/* Left side */}
-            <div className="d-flex align-items-center">
+            <div className="d-flex">
                 {/* Logo */}
                 <div className="navbar-brand-box">
                     <Link to="/" className="logo">
                         <span className="logo-sm">
                             <img src="/logo-sm.png" alt="" height="22" />
                         </span>
-                        <span className="logo-lg">
+                        <span className="logo-lg d-none d-lg-block">
                             <img src="/logo-dark.png" alt="" height="17" />
                         </span>
                     </Link>
                 </div>
 
-                {/* Toggle Button */}
-                <Button 
-                    icon="pi pi-bars"
-                    className="btn header-item"
-                    onClick={() => document.body.classList.toggle('sidebar-enable')}
-                />
-
                 {/* Main Navigation */}
-                <div className="d-none d-lg-flex align-items-center">
-                    <Link 
-                        to="/map" 
-                        className={`nav-link px-3 ${location.pathname === '/map' ? 'active' : ''}`}
-                    >
-                        <i className="bx bx-map me-2"></i>
-                        Map
-                    </Link>
-
-                    <Link 
-                        to="/analysis" 
-                        className={`nav-link px-3 ${location.pathname === '/analysis' ? 'active' : ''}`}
-                    >
-                        <i className="bx bx-analyse me-2"></i>
-                        Analysis
-                    </Link>
+                <div className="topnav">
+                    <nav className="navbar navbar-light navbar-expand-lg topnav-menu">
+                        <div className="collapse navbar-collapse" id="topnav-menu-content">
+                            <ul className="navbar-nav">
+                                <li className="nav-item">
+                                    <Link to="/news" className="nav-link">
+                                        <i className="bx bx-news me-2"></i>
+                                        <span>News</span>
+                                        <Badge value="5" className="ms-1" severity="danger"></Badge>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/map" className="nav-link">
+                                        <i className="bx bx-map me-2"></i>
+                                        <span>Map</span>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link to="/analysis" className="nav-link">
+                                        <i className="bx bx-analyse me-2"></i>
+                                        <span>Analysis</span>
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
                 </div>
             </div>
 
             {/* Right side */}
             <div className="d-flex align-items-center">
                 {/* Search */}
-                <Button 
-                    icon="pi pi-search"
-                    className="header-item noti-icon p-link"
-                    onClick={() => navigate('/search')}
-                />
+                <div className="dropdown d-inline-block d-lg-none ms-2">
+                    <Button 
+                        icon="pi pi-search"
+                        className="header-item noti-icon"
+                        onClick={() => navigate('/search')}
+                    />
+                </div>
 
                 {/* Notifications */}
-                <Button
-                    icon="pi pi-bell"
-                    badge="3"
-                    className="header-item noti-icon p-link"
-                    badgeClassName="p-badge-danger"
-                    onClick={() => navigate('/notifications')}
-                />
+                <div className="dropdown d-inline-block">
+                    <Button
+                        icon="pi pi-bell"
+                        badge="3"
+                        className="header-item noti-icon"
+                        badgeClassName="bg-danger"
+                        onClick={() => navigate('/notifications')}
+                    />
+                </div>
 
                 {/* User Profile */}
-                <div className="dropdown">
+                <div className="dropdown d-inline-block">
                     <Button
-                        className="header-item user-dropdown p-link"
+                        className="header-item"
                         onClick={() => navigate('/profile')}
                     >
                         <Avatar 
                             image={user?.avatar_url || "/avatar-placeholder.png"}
                             shape="circle"
-                            className="me-2"
+                            className="header-profile-user"
                         />
-                        <span className="d-none d-xl-inline-block ms-1">
+                        <span className="d-none d-xl-inline-block ms-1 fw-medium font-size-15">
                             {user?.name}
                         </span>
-                        <i className="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                     </Button>
                 </div>
 
                 {/* Settings */}
-                <Button
-                    icon="pi pi-cog"
-                    className="header-item noti-icon p-link"
-                    onClick={() => navigate('/settings')}
-                />
+                <div className="dropdown d-inline-block">
+                    <Button
+                        icon="pi pi-cog"
+                        className="header-item noti-icon right-bar-toggle"
+                        onClick={() => navigate('/settings')}
+                    />
+                </div>
             </div>
         </div>
     );
