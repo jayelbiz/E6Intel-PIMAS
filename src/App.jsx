@@ -1,15 +1,27 @@
 import React from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { RecoilRoot } from 'recoil'
 import { Card } from 'primereact/card'
+
+// Pages
+import News from './pages/News'
+import Settings from './pages/Settings'
+
+// Layout
+import MainLayout from './layouts/MainLayout'
 
 const App = () => {
   return (
-    <div className="min-h-screen surface-ground">
-      <div className="p-4">
-        <Card title="News Feed" className="shadow-2">
-          <p>Welcome to E6Intel PIMAS</p>
-        </Card>
-      </div>
-    </div>
+    <RecoilRoot>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<MainLayout />}>
+            <Route index element={<News />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </RecoilRoot>
   )
 }
 

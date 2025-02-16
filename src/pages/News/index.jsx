@@ -29,6 +29,13 @@ const News = () => {
     search: ''
   });
 
+  const sortOptions = [
+    { label: 'Most Recent', value: 'date' },
+    { label: 'Reliability Score', value: 'reliability' },
+    { label: 'Sentiment Score', value: 'sentiment' },
+    { label: 'Event Severity', value: 'severity' }
+  ];
+
   const renderHeader = () => {
     return (
       <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
@@ -53,31 +60,26 @@ const News = () => {
           />
           <Dropdown
             value={filters.sortBy}
-            options={[
-              { label: 'Most Recent', value: 'recent' },
-              { label: 'Reliability Score', value: 'reliability' },
-              { label: 'Sentiment Score', value: 'sentiment' },
-              { label: 'Severity', value: 'severity' }
-            ]}
+            options={sortOptions}
             onChange={(e) => setFilters({...filters, sortBy: e.value})}
-            placeholder="Sort By"
+            placeholder="Sort by"
           />
         </div>
       </div>
     );
   };
 
-  const renderArticleCard = (article) => {
+  const itemTemplate = (article) => {
     return (
       <div className="col-12 md:col-6 lg:col-4 p-2">
-        <Card className="h-full">
-          <div className="flex flex-column h-full">
-            <div className="flex align-items-center gap-2 mb-3">
-              <Badge value={article.category} severity="info" />
-              <span className="text-sm text-500">{new Date(article.publishedAt).toLocaleDateString()}</span>
+        <Card className="h-full surface-card shadow-2">
+          <div className="flex flex-column gap-3">
+            <div className="text-xl font-bold text-900">{article.title}</div>
+            <div className="text-500">{article.summary}</div>
+            <div className="flex align-items-center gap-2">
+              <i className="pi pi-calendar text-500"></i>
+              <span className="text-500">{new Date(article.publishedAt).toLocaleDateString()}</span>
             </div>
-            <h3 className="text-xl font-semibold mb-3">{article.title}</h3>
-            <p className="line-clamp-3 mb-3 flex-grow-1">{article.summary}</p>
             <div className="flex justify-content-between align-items-center">
               <Button 
                 label="Read More" 
@@ -116,7 +118,7 @@ const News = () => {
     return matchesCategory && matchesSearch;
   }).sort((a, b) => {
     switch (filters.sortBy) {
-      case 'recent':
+      case 'date':
         return new Date(b.publishedAt) - new Date(a.publishedAt);
       case 'reliability':
         return (b.reliabilityScore || 0) - (a.reliabilityScore || 0);
@@ -131,14 +133,13 @@ const News = () => {
   });
 
   return (
-    <div className="p-4">
+    <div className="flex flex-column gap-4">
       {renderHeader()}
       <DataView
         value={filteredArticles}
+        itemTemplate={itemTemplate}
         layout="grid"
-        itemTemplate={renderArticleCard}
-        paginator
-        rows={9}
+        loading={loading}
         emptyMessage="No articles found"
       />
       <Dialog

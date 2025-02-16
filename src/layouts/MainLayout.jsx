@@ -1,22 +1,22 @@
-import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Menubar } from 'primereact/menubar';
+import React from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { Menubar } from 'primereact/menubar'
 
 const MainLayout = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const menuItems = [
     {
       label: 'News',
-      icon: 'pi pi-fw pi-globe',
+      icon: 'pi pi-globe',
       command: () => navigate('/')
     },
     {
       label: 'Settings',
-      icon: 'pi pi-fw pi-cog',
+      icon: 'pi pi-cog',
       command: () => navigate('/settings')
     }
-  ];
+  ]
 
   return (
     <div className="min-h-screen flex flex-column surface-ground">
@@ -34,7 +34,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default MainLayout;
+export default MainLayout
