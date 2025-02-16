@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 // Public pages
 const Login = React.lazy(() => import('../pages/Authentication/Login'));
 const Register = React.lazy(() => import('../pages/Authentication/Register'));
-const ForgetPassword = React.lazy(() => import('../pages/Authentication/ForgetPassword'));
+const ForgotPassword = React.lazy(() => import('../pages/Authentication/ForgotPassword'));
 
 // Private pages
 const Dashboard = React.lazy(() => import('../pages/Dashboard'));
@@ -17,7 +17,7 @@ const Settings = React.lazy(() => import('../pages/Settings'));
 const publicRoutes = [
     { path: '/login', component: Login },
     { path: '/register', component: Register },
-    { path: '/forgot-password', component: ForgetPassword },
+    { path: '/forgot-password', component: ForgotPassword },
     { path: '*', component: () => <Navigate to="/login" /> }
 ];
 
