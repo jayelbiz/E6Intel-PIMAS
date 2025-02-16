@@ -8,12 +8,19 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { Dialog } from 'primereact/dialog';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { useNews } from '@/contexts/NewsContext';
+
+const LoadingState = () => (
+  <div className="card flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+    <ProgressSpinner />
+  </div>
+);
 
 const News = () => {
   document.title = "News | E6Intel PIMAS";
   
-  const { articles, loading, categories } = useNews();
+  const { articles, loading, categories, error } = useNews();
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [filters, setFilters] = useState({
     category: 'all',
@@ -27,6 +34,35 @@ const News = () => {
     { label: 'Sentiment Score', value: 'sentiment' },
     { label: 'Event Severity', value: 'severity' }
   ];
+
+  const getFilteredArticles = () => {
+    if (!articles) return [];
+    
+    return articles.filter(article => {
+      const matchesCategory = filters.category === 'all' || 
+        article.category.toLowerCase() === filters.category;
+      
+      const matchesSearch = !filters.search ||
+        article.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        article.summary.toLowerCase().includes(filters.search.toLowerCase());
+      
+      return matchesCategory && matchesSearch;
+    }).sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'recent':
+          return new Date(b.published_at) - new Date(a.published_at);
+        case 'reliability':
+          return (b.reliability_score || 0) - (a.reliability_score || 0);
+        case 'sentiment':
+          return (b.sentiment === 'positive' ? 1 : b.sentiment === 'negative' ? -1 : 0) -
+                 (a.sentiment === 'positive' ? 1 : a.sentiment === 'negative' ? -1 : 0);
+        case 'severity':
+          return (b.severity_score || 0) - (a.severity_score || 0);
+        default:
+          return 0;
+      }
+    });
+  };
 
   const renderHeader = () => {
     return (
@@ -47,7 +83,7 @@ const News = () => {
             value={filters.category}
             options={[
               { label: 'All Categories', value: 'all' },
-              ...categories.map(cat => ({ label: cat, value: cat.toLowerCase() }))
+              ...(categories || []).map(cat => ({ label: cat, value: cat.toLowerCase() }))
             ]}
             onChange={(e) => setFilters(prev => ({ ...prev, category: e.value }))}
             className="w-200px"
@@ -73,6 +109,9 @@ const News = () => {
               alt=""
               className="w-100 card-img-top"
               style={{ height: '200px', objectFit: 'cover' }}
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/800x400?text=No+Image';
+              }}
             />
           )}
           <div className="card-body">
@@ -84,6 +123,9 @@ const News = () => {
             </div>
             <h5 className="card-title mb-2">{article.title}</h5>
             <p className="card-text text-truncate-2">{article.summary}</p>
+            <div className="d-flex align-items-center mt-2">
+              <small className="text-muted">{article.source}</small>
+            </div>
             
             {/* AI Analysis Preview */}
             <div className="mt-3 pt-3 border-top">
@@ -126,6 +168,22 @@ const News = () => {
     }
   };
 
+  if (error) {
+    return (
+      <div className="page-content">
+        <Container fluid>
+          <Card>
+            <div className="p-4 text-center">
+              <i className="pi pi-exclamation-triangle text-danger" style={{ fontSize: '2rem' }} />
+              <h5 className="mt-3">Error Loading News</h5>
+              <p>{error}</p>
+            </div>
+          </Card>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div className="page-content">
       <Container fluid>
@@ -139,14 +197,20 @@ const News = () => {
           <TabView>
             <TabPanel header="All News">
               <DataView
-                value={articles}
+                value={getFilteredArticles()}
                 layout="grid"
                 header={renderHeader()}
                 itemTemplate={renderArticleCard}
                 paginator
                 rows={9}
                 loading={loading}
-                emptyMessage="No articles found"
+                loadingTemplate={() => <LoadingState />}
+                emptyMessage={
+                  <div className="p-4 text-center">
+                    <i className="pi pi-search" style={{ fontSize: '2rem' }} />
+                    <p className="mt-3">No articles found matching your criteria</p>
+                  </div>
+                }
               />
             </TabPanel>
             <TabPanel header="Saved">
@@ -175,9 +239,20 @@ const News = () => {
                     alt=""
                     className="w-100 mb-4"
                     style={{ maxHeight: '400px', objectFit: 'cover' }}
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/800x400?text=No+Image';
+                    }}
                   />
                 )}
-                <div className="article-content" dangerouslySetInnerHTML={{ __html: selectedArticle.content }} />
+                <div className="article-content">
+                  <p className="lead mb-4">{selectedArticle.summary}</p>
+                  <div dangerouslySetInnerHTML={{ __html: selectedArticle.content }} />
+                  <div className="mt-4">
+                    <a href={selectedArticle.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                      Read Full Article
+                    </a>
+                  </div>
+                </div>
               </div>
               <div className="col-md-4">
                 <Card title="AI Analysis">
