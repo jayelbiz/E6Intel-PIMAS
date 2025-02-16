@@ -5,8 +5,8 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { FileUpload } from 'primereact/fileupload';
 import { ToggleButton } from 'primereact/togglebutton';
-import { useToast } from '../../services/toast';
-import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '@services/toast';
+import { useAuth } from '@hooks/useAuth';
 
 const UserProfile = () => {
   const { user, updateProfile, getUserProfile, updateUserProfile } = useAuth();

@@ -4,8 +4,8 @@ import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import { useAuth } from '../../hooks/useAuth';
-import { useToast } from '../../services/toast';
+import { useAuth } from '@hooks/useAuth';
+import { useToast } from '@services/toast';
 
 const SessionManagement = () => {
   const [sessions, setSessions] = useState([]);

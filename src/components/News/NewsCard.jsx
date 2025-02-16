@@ -3,7 +3,7 @@ import { Card } from 'primereact/card';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { formatDistanceToNow } from 'date-fns';
-import { NEWS_CATEGORY_LABELS, NEWS_CATEGORY_COLORS } from '../../constants';
+import { NEWS_CATEGORY_LABELS, NEWS_CATEGORY_COLORS } from '@/constants';
 
 const NewsCard = ({ article, onViewDetails }) => {
     const header = (

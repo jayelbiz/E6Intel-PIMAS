@@ -6,8 +6,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import { useAuth } from '../../hooks/useAuth';
-import { useToast } from '../../services/toast';
+import { useAuth } from '@hooks/useAuth';
+import { useToast } from '@services/toast';
 import { supabase } from '../../config/supabase';
 
 const ROLES = ['admin', 'analyst', 'editor', 'viewer'];

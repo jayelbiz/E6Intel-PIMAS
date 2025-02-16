@@ -6,8 +6,8 @@ import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 // Custom hooks
-import { useAuth } from "../../hooks/useAuth";
-import { useToast } from "../../services/toast";
+import { useAuth } from "@hooks/useAuth";
+import { useToast } from "@services/toast";
 
 // Images
 import logo from "../../assets/images/logo.svg";

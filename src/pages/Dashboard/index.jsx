@@ -5,7 +5,7 @@ import {
 } from "reactstrap";
 
 //Import Breadcrumb
-import Breadcrumbs from "../../components/Common/Breadcrumb";
+import Breadcrumbs from "@components/Common/Breadcrumb";
 
 //i18n
 import { withTranslation } from "react-i18next";

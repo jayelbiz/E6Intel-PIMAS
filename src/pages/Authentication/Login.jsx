@@ -9,8 +9,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 
 // Custom hooks
-import { useAuth } from "../../hooks/useAuth";
-import { useToast } from "../../services/toast";
+import { useAuth } from "@hooks/useAuth";
+import { useToast } from "@services/toast";
 
 // Images
 import logo from "../../assets/images/logo.svg";

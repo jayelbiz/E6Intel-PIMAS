@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@hooks/useAuth';
 import { Menubar } from 'primereact/menubar';
 import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';

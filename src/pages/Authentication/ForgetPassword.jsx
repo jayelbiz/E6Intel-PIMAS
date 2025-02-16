@@ -17,7 +17,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from "reselect";
 import { Link } from "react-router-dom";
-import withRouter from "../../components/Common/withRouter";
+import withRouter from "@components/Common/withRouter";
 
 // Formik Validation
 import * as Yup from "yup";

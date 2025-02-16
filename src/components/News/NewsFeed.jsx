@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { newsService } from '../../services/newsService';
+import { newsService } from '@services/newsService';
 import NewsCard from './NewsCard';
 import NewsModal from './NewsModal';
 import { InputText } from 'primereact/inputtext';

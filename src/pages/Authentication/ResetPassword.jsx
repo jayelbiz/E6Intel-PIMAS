@@ -6,8 +6,8 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useAuth } from "../../hooks/useAuth";
-import { useToast } from "../../services/toast";
+import { useAuth } from "@hooks/useAuth";
+import { useToast } from "@services/toast";
 
 const ResetPassword = () => {
   const [loading, setLoading] = useState(false);

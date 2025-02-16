@@ -8,8 +8,8 @@ import * as Yup from "yup";
 import classNames from 'classnames';
 
 // Custom hooks
-import { useAuth } from "../../hooks/useAuth";
-import { useToast } from "../../services/toast";
+import { useAuth } from "@hooks/useAuth";
+import { useToast } from "@services/toast";
 
 // Images
 import logo from "../../assets/images/logo.svg";
