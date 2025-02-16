@@ -1,25 +1,36 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Menubar } from 'primereact/menubar';
 
 const MainLayout = () => {
+  const navigate = useNavigate();
+
   const menuItems = [
     {
       label: 'News',
-      icon: 'pi pi-fw pi-file',
-      url: '/'
+      icon: 'pi pi-fw pi-globe',
+      command: () => navigate('/')
     },
     {
       label: 'Settings',
       icon: 'pi pi-fw pi-cog',
-      url: '/settings'
+      command: () => navigate('/settings')
     }
   ];
 
   return (
-    <div className="layout-wrapper">
-      <Menubar model={menuItems} />
-      <main className="layout-main">
+    <div className="min-h-screen flex flex-column surface-ground">
+      <Menubar 
+        model={menuItems} 
+        className="border-noround surface-card"
+        start={() => (
+          <div className="flex align-items-center gap-2">
+            <i className="pi pi-shield text-2xl text-primary"></i>
+            <span className="text-xl font-bold">E6Intel PIMAS</span>
+          </div>
+        )}
+      />
+      <main className="flex-grow-1 p-4">
         <Outlet />
       </main>
     </div>

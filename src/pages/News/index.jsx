@@ -29,40 +29,26 @@ const News = () => {
     search: ''
   });
 
-  const renderArticleCard = (article) => {
-    return (
-      <div className="col-12 md:col-6 lg:col-4 p-3">
-        <Card className="h-full">
-          <div className="flex flex-column h-full">
-            <div className="flex align-items-center gap-2 mb-3">
-              <Badge value={article.category} severity={getCategorySeverity(article.category)} />
-              <span className="text-sm text-500">{new Date(article.publishedAt).toLocaleDateString()}</span>
-            </div>
-            <h3 className="text-xl font-bold mb-3">{article.title}</h3>
-            <p className="line-clamp-3 mb-3 flex-grow-1">{article.summary}</p>
-            <div className="flex justify-content-between align-items-center">
-              <Button 
-                label="Read More" 
-                icon="pi pi-external-link" 
-                onClick={() => setSelectedArticle(article)} 
-                text
-              />
-              <span className="text-sm text-600">{article.source}</span>
-            </div>
-          </div>
-        </Card>
-      </div>
-    );
-  };
-
   const renderHeader = () => {
     return (
-      <div className="flex flex-wrap gap-3 justify-content-between align-items-center mb-4">
-        <div className="flex gap-3">
+      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+        <h1 className="text-3xl font-bold mb-4 md:mb-0">News Feed</h1>
+        <div className="flex flex-column md:flex-row gap-3">
+          <span className="p-input-icon-left">
+            <i className="pi pi-search" />
+            <InputText 
+              placeholder="Search" 
+              value={filters.search}
+              onChange={(e) => setFilters({...filters, search: e.target.value})}
+            />
+          </span>
           <Dropdown
             value={filters.category}
-            options={[{ label: 'All Categories', value: 'all' }, ...categories]}
-            onChange={(e) => setFilters({ ...filters, category: e.value })}
+            options={[
+              { label: 'All Categories', value: 'all' },
+              ...categories.map(category => ({ label: category, value: category.toLowerCase() }))
+            ]}
+            onChange={(e) => setFilters({...filters, category: e.value})}
             placeholder="Select Category"
           />
           <Dropdown
@@ -73,18 +59,38 @@ const News = () => {
               { label: 'Sentiment Score', value: 'sentiment' },
               { label: 'Severity', value: 'severity' }
             ]}
-            onChange={(e) => setFilters({ ...filters, sortBy: e.value })}
+            onChange={(e) => setFilters({...filters, sortBy: e.value})}
             placeholder="Sort By"
           />
         </div>
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            placeholder="Search articles..."
-          />
-        </span>
+      </div>
+    );
+  };
+
+  const renderArticleCard = (article) => {
+    return (
+      <div className="col-12 md:col-6 lg:col-4 p-2">
+        <Card className="h-full">
+          <div className="flex flex-column h-full">
+            <div className="flex align-items-center gap-2 mb-3">
+              <Badge value={article.category} severity="info" />
+              <span className="text-sm text-500">{new Date(article.publishedAt).toLocaleDateString()}</span>
+            </div>
+            <h3 className="text-xl font-semibold mb-3">{article.title}</h3>
+            <p className="line-clamp-3 mb-3 flex-grow-1">{article.summary}</p>
+            <div className="flex justify-content-between align-items-center">
+              <Button 
+                label="Read More" 
+                className="p-button-text" 
+                onClick={() => setSelectedArticle(article)}
+              />
+              <Button 
+                icon="pi pi-bookmark" 
+                className="p-button-rounded p-button-text"
+              />
+            </div>
+          </div>
+        </Card>
       </div>
     );
   };
@@ -129,22 +135,23 @@ const News = () => {
       {renderHeader()}
       <DataView
         value={filteredArticles}
-        itemTemplate={renderArticleCard}
         layout="grid"
-        rows={9}
+        itemTemplate={renderArticleCard}
         paginator
+        rows={9}
+        emptyMessage="No articles found"
       />
       <Dialog
         visible={!!selectedArticle}
         onHide={() => setSelectedArticle(null)}
         header={selectedArticle?.title}
+        style={{ width: '90vw', maxWidth: '800px' }}
         maximizable
-        className="w-full md:w-8 lg:w-6"
       >
         {selectedArticle && (
           <div className="article-content">
             <div className="flex gap-3 mb-4">
-              <Badge value={selectedArticle.category} severity={getCategorySeverity(selectedArticle.category)} />
+              <Badge value={selectedArticle.category} severity="info" />
               <span className="text-sm text-500">
                 {new Date(selectedArticle.publishedAt).toLocaleDateString()}
               </span>
