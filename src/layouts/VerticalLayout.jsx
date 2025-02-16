@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { Menubar } from 'primereact/menubar';
+import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { Container } from 'reactstrap';
 import { Button } from 'primereact/button';
 import { useAuth } from '../hooks/useAuth';
 
 const VerticalLayout = ({ children }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -27,22 +30,6 @@ const VerticalLayout = ({ children }) => {
       label: 'Dashboard',
       icon: 'pi pi-fw pi-home',
       command: () => navigate('/dashboard')
-    },
-    {
-      label: 'News',
-      icon: 'pi pi-fw pi-globe',
-      items: [
-        {
-          label: 'All News',
-          icon: 'pi pi-fw pi-list',
-          command: () => navigate('/news')
-        },
-        {
-          label: 'Categories',
-          icon: 'pi pi-fw pi-tags',
-          command: () => navigate('/news/categories')
-        }
-      ]
     },
     {
       label: 'Analysis',
@@ -86,15 +73,47 @@ const VerticalLayout = ({ children }) => {
 
   return (
     <div className="layout-wrapper">
-      <Menubar
-        model={menuItems}
-        end={endTemplate}
-        className="layout-topbar shadow-2"
-      />
-      <div className="layout-main-container">
-        <div className="layout-main">
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <Container fluid>
+          {/* Logo */}
+          <Link to="/" className="navbar-brand">
+            <img src="/logo-sm.png" alt="logo" height="22" />
+          </Link>
+
+          {/* Navigation Links */}
+          <div className="navbar-nav mr-auto">
+            <Link 
+              to="/news" 
+              className={`nav-item nav-link ${location.pathname === '/news' ? 'active' : ''}`}
+            >
+              <i className="bx bx-news me-2"></i>
+              News
+            </Link>
+
+            <Link 
+              to="/map" 
+              className={`nav-item nav-link ${location.pathname === '/map' ? 'active' : ''}`}
+            >
+              <i className="bx bx-map me-2"></i>
+              Map
+            </Link>
+
+            <Link 
+              to="/analysis" 
+              className={`nav-item nav-link ${location.pathname === '/analysis' ? 'active' : ''}`}
+            >
+              <i className="bx bx-analyse me-2"></i>
+              Analysis
+            </Link>
+          </div>
+        </Container>
+      </nav>
+
+      {/* Main Content */}
+      <div className="main-content">
+        <Container fluid>
           {children}
-        </div>
+        </Container>
       </div>
     </div>
   );
