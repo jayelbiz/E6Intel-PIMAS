@@ -1,20 +1,19 @@
-import React from 'react'
-import ReactDOM from "react-dom/client"
-import App from './App.jsx'
-import * as serviceWorker from "./serviceWorker.jsx"
-import { BrowserRouter } from 'react-router-dom'
-import "./i18n.jsx"
-import { Provider } from 'react-redux'
-import store from './store/index.js'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+// Import PrimeReact styles
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+
+// Import Bootstrap and custom styles
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@styles/theme.css';
+import '@styles/animations.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.Fragment>
-    <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
-  </React.Fragment>,
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
-
-serviceWorker.unregister()

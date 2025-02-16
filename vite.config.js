@@ -3,7 +3,16 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      include: "**/*.{jsx,tsx}",
+      babel: {
+        plugins: [
+          ['@babel/plugin-transform-react-jsx']
+        ]
+      }
+    })
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -15,15 +24,31 @@ export default defineConfig({
       '@utils': path.resolve(__dirname, './src/utils'),
       '@assets': path.resolve(__dirname, './src/assets'),
       '@styles': path.resolve(__dirname, './src/styles'),
-      '@config': path.resolve(__dirname, './src/config')
-    }
+      '@config': path.resolve(__dirname, './src/config'),
+      '@layouts': path.resolve(__dirname, './src/layouts')
+    },
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
   server: {
     port: 5173,
-    open: true
+    host: true,
+    hmr: {
+      overlay: true
+    }
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'primereact']
   }
 });
