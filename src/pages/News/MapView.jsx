@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from 'primereact/card';
-import { Breadcrumb } from 'primereact/breadcrumb';
+import { BreadCrumb } from 'primereact/breadcrumb';
 import { useNavigate } from 'react-router-dom';
 
 const MapView = () => {
@@ -18,7 +18,7 @@ const MapView = () => {
             <div className="container-fluid">
                 <div className="mb-4">
                     <h4 className="mb-2">News Map View</h4>
-                    <Breadcrumb model={items} home={home} className="p-0 text-sm" />
+                    <BreadCrumb model={items} home={home} className="p-0 text-sm" />
                 </div>
                 <Card>
                     <div className="text-center p-5">

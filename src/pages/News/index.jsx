@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from 'primereact/card';
-import { Breadcrumb } from 'primereact/breadcrumb';
+import { BreadCrumb } from 'primereact/breadcrumb';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import NewsFeed from '../../components/News/NewsFeed';
@@ -46,7 +46,7 @@ const News = () => {
                 <div className="flex justify-content-between align-items-center mb-4">
                     <div>
                         <h4 className="mb-2">News Intelligence Feed</h4>
-                        <Breadcrumb model={items} home={home} className="p-0 text-sm" />
+                        <BreadCrumb model={items} home={home} className="p-0 text-sm" />
                     </div>
                     <div className="flex align-items-center gap-2">
                         <Button 
