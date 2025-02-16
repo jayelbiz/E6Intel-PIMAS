@@ -5,6 +5,7 @@ class NewsService {
         this.guardianApiKey = import.meta.env.VITE_GUARDIAN_API_KEY;
         this.newsApiKey = import.meta.env.VITE_NEWS_API_KEY;
         this.gNewsApiKey = import.meta.env.VITE_GNEWS_API_KEY;
+        this.mediastackApiKey = import.meta.env.VITE_MEDIASTACK_API_KEY;
         this.cacheExpiryMinutes = 5;
     }
 
@@ -165,6 +166,36 @@ class NewsService {
         }
     }
 
+    async fetchMediastack(query = '') {
+        const startTime = Date.now();
+        try {
+            const response = await fetch(
+                `http://api.mediastack.com/v1/news?access_key=${this.mediastackApiKey}&languages=en&keywords=${query}`
+            );
+            
+            const responseTime = Date.now() - startTime;
+            await this.logApiCall('Mediastack', '/news', response.status, responseTime);
+
+            if (!response.ok) throw new Error('Mediastack API request failed');
+
+            const data = await response.json();
+            return data.data.map(article => ({
+                title: article.title,
+                content: article.description,
+                url: article.url,
+                image_url: article.image,
+                source_name: article.source,
+                source_id: null,
+                published_at: article.published_at,
+                category: this.categorizeArticle(article.category || article.title)
+            }));
+        } catch (error) {
+            console.error('Error fetching from Mediastack:', error);
+            await this.logApiCall('Mediastack', '/news', 500, Date.now() - startTime, error.message);
+            return [];
+        }
+    }
+
     categorizeArticle(text) {
         const categories = {
             geopolitical: ['war', 'diplomacy', 'international', 'politics', 'military'],
@@ -191,14 +222,15 @@ class NewsService {
         }
 
         // Fetch from all sources in parallel
-        const [guardianNews, newsApiNews, gNews] = await Promise.all([
+        const [guardianNews, newsApiNews, gNews, mediastackNews] = await Promise.all([
             this.fetchGuardianNews(query),
             this.fetchNewsAPI(query),
-            this.fetchGNews(query)
+            this.fetchGNews(query),
+            this.fetchMediastack(query)
         ]);
 
         // Combine and cache results
-        const allNews = [...guardianNews, ...newsApiNews, ...gNews];
+        const allNews = [...guardianNews, ...newsApiNews, ...gNews, ...mediastackNews];
         await this.cacheNews(allNews);
 
         return allNews;
