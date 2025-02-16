@@ -7,13 +7,14 @@ import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/services/toast";
+import logo from "@/assets/images/logo.svg";
 
 // Custom hooks
-import { useAuth } from "@hooks/useAuth";
-import { useToast } from "@services/toast";
 
 // Images
-import logo from "../../assets/images/logo.svg";
+
 
 const Login = () => {
   const [loading, setLoading] = useState(false);

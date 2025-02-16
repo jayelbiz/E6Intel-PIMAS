@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+
+// Hooks
 import { useAuth } from '../hooks/useAuth';
+
+// Services
 import { supabase } from '../config/supabase';
 
 // Auth pages

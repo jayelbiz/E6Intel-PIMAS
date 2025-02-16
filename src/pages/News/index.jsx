@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from 'primereact/card';
-import { TabView, TabPanel } from 'primereact/tabview';
 import { DataView } from 'primereact/dataview';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
@@ -29,13 +28,6 @@ const News = () => {
     sortBy: 'recent',
     search: ''
   });
-
-  useEffect(() => {
-    if (selectedArticle) {
-      const { html, locations } = processContent(selectedArticle.content);
-      setProcessedContent({ html, locations });
-    }
-  }, [selectedArticle]);
 
   const renderArticleCard = (article) => {
     return (
@@ -96,6 +88,13 @@ const News = () => {
       </div>
     );
   };
+
+  useEffect(() => {
+    if (selectedArticle) {
+      const { html, locations } = processContent(selectedArticle.content);
+      setProcessedContent({ html, locations });
+    }
+  }, [selectedArticle]);
 
   if (loading) return <LoadingState />;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
