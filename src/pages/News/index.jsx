@@ -1,274 +1,210 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
+import { Container } from "reactstrap";
 import { Card } from 'primereact/card';
-import { BreadCrumb } from 'primereact/breadcrumb';
+import { TabView, TabPanel } from 'primereact/tabview';
+import { DataView } from 'primereact/dataview';
+import { Dropdown } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
-import NewsFeed from '../../components/News/NewsFeed';
-import { useNavigate } from 'react-router-dom';
+import { Badge } from 'primereact/badge';
 import { Dialog } from 'primereact/dialog';
-import { OverlayPanel } from 'primereact/overlaypanel';
-import { CSSTransition } from 'react-transition-group';
-import '@styles/animations.css';
+import { useNews } from '../../contexts/NewsContext';
 
 const News = () => {
-    const navigate = useNavigate();
-    const [selectedArticle, setSelectedArticle] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const [showQuickView, setShowQuickView] = useState(false);
-    const quickViewRef = useRef(null);
-    const modalRef = useRef(null);
+  document.title = "News | E6Intel PIMAS";
+  
+  const { articles, loading, categories } = useNews();
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [filters, setFilters] = useState({
+    category: 'all',
+    sortBy: 'recent',
+    search: ''
+  });
 
-    const items = [
-        { label: 'Home', command: () => navigate('/') },
-        { label: 'News' }
-    ];
+  const sortOptions = [
+    { label: 'Most Recent', value: 'recent' },
+    { label: 'Reliability Score', value: 'reliability' },
+    { label: 'Sentiment Score', value: 'sentiment' },
+    { label: 'Event Severity', value: 'severity' }
+  ];
 
-    const handleArticleClick = (article, event) => {
-        setSelectedArticle(article);
-        setShowQuickView(true);
-        quickViewRef.current?.show(event);
-    };
-
-    const handleQuickViewClick = () => {
-        setShowQuickView(false);
-        setTimeout(() => {
-            quickViewRef.current?.hide();
-            setShowModal(true);
-        }, 150);
-    };
-
-    const handleModalHide = () => {
-        modalRef.current?.classList.add('modal-exit');
-        setTimeout(() => {
-            setShowModal(false);
-            modalRef.current?.classList.remove('modal-exit');
-        }, 200);
-    };
-
-    const renderQuickView = () => {
-        if (!selectedArticle) return null;
-        
-        return (
-            <CSSTransition
-                in={showQuickView}
-                timeout={150}
-                classNames="quick-view"
-                unmountOnExit
-            >
-                <div className="p-3" style={{ width: '400px' }}>
-                    <h5 className="slide-down">{selectedArticle.title}</h5>
-                    <p className="text-sm text-muted mb-2 slide-down" style={{ animationDelay: '50ms' }}>
-                        {new Date(selectedArticle.publishedAt).toLocaleDateString()}
-                    </p>
-                    <p className="mb-3 slide-down" style={{ animationDelay: '100ms' }}>
-                        {selectedArticle.summary}
-                    </p>
-                    <Button 
-                        label="View Full Article" 
-                        icon="pi pi-external-link"
-                        onClick={handleQuickViewClick}
-                        className="slide-up"
-                        style={{ animationDelay: '150ms' }}
-                    />
-                </div>
-            </CSSTransition>
-        );
-    };
-
-    const renderModal = () => {
-        if (!selectedArticle) return null;
-
-        return (
-            <Dialog
-                ref={modalRef}
-                header={selectedArticle.title}
-                visible={showModal}
-                style={{ width: '90vw', maxWidth: '1200px' }}
-                modal
-                onHide={handleModalHide}
-                className="modal-content"
-                contentClassName="p-0"
-                showHeader={false}
-                transitionOptions={{
-                    timeout: 300,
-                    classNames: {
-                        enter: 'modal-enter',
-                        enterActive: 'modal-enter-active',
-                        exit: 'modal-exit',
-                        exitActive: 'modal-exit-active'
-                    }
-                }}
-            >
-                <div className="grid m-0">
-                    <div className="col-12 p-0">
-                        <div className="p-4 border-bottom-1 surface-border slide-down">
-                            <h2>{selectedArticle.title}</h2>
-                            <p className="text-500 mb-0">
-                                {new Date(selectedArticle.publishedAt).toLocaleDateString()}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="col-12 md:col-8 p-4">
-                        <img 
-                            src={selectedArticle.imageUrl} 
-                            alt={selectedArticle.title}
-                            className="w-full rounded-lg mb-3 slide-up"
-                            style={{ animationDelay: '100ms' }}
-                        />
-                        <div className="article-content slide-up" style={{ animationDelay: '200ms' }}>
-                            {selectedArticle.content}
-                        </div>
-                    </div>
-                    <div className="col-12 md:col-4 p-4">
-                        <Card title="Analysis" className="slide-up" style={{ animationDelay: '300ms' }}>
-                            <div className="mb-3 slide-up" style={{ animationDelay: '400ms' }}>
-                                <h6>Sentiment</h6>
-                                <p>{selectedArticle.analysis?.sentiment}</p>
-                            </div>
-                            <div className="mb-3 slide-up" style={{ animationDelay: '500ms' }}>
-                                <h6>Key Themes</h6>
-                                <div className="flex flex-wrap gap-2">
-                                    {selectedArticle.analysis?.themes.map((theme, i) => (
-                                        <span 
-                                            key={i} 
-                                            className="p-tag slide-up"
-                                            style={{ animationDelay: `${600 + (i * 50)}ms` }}
-                                        >
-                                            {theme}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="mb-3 slide-up" style={{ animationDelay: '700ms' }}>
-                                <h6>Related Articles</h6>
-                                <ul className="list-none p-0 m-0">
-                                    {selectedArticle.relatedArticles?.map((article, i) => (
-                                        <li 
-                                            key={i} 
-                                            className="mb-2 slide-up"
-                                            style={{ animationDelay: `${800 + (i * 50)}ms` }}
-                                        >
-                                            <a 
-                                                href="#" 
-                                                className="hover:text-primary transition-colors duration-200"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setSelectedArticle(article);
-                                                }}
-                                            >
-                                                {article.title}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-            </Dialog>
-        );
-    };
-
+  const renderHeader = () => {
     return (
-        <div className="page-content" id="news-page-content">
-            <div className="container-fluid">
-                {/* Page Header */}
-                <div className="row">
-                    <div className="col-12">
-                        <div className="page-title-box d-flex align-items-center justify-content-between">
-                            <div>
-                                <h4 className="mb-0 font-size-18">News Intelligence Feed</h4>
-                                <BreadCrumb 
-                                    model={items} 
-                                    className="mt-2"
-                                    id="news-breadcrumb"
-                                />
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                                <Button 
-                                    icon="pi pi-bookmark"
-                                    className="btn btn-light btn-sm"
-                                    tooltip="View Bookmarks"
-                                    tooltipOptions={{ position: 'bottom' }}
-                                    onClick={() => navigate('/news/bookmarks')}
-                                    id="news-bookmark-btn"
-                                />
-                                <Button
-                                    icon="pi pi-bell"
-                                    className="btn btn-light btn-sm"
-                                    tooltip="Manage Alerts"
-                                    tooltipOptions={{ position: 'bottom' }}
-                                    onClick={() => navigate('/news/alerts')}
-                                    id="news-alerts-btn"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* News Feed Container */}
-                <div className="row">
-                    <div className="col-12">
-                        <div className="card" id="news-feed-container">
-                            <div className="card-body">
-                                <NewsFeed onArticleClick={handleArticleClick} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Actions Footer */}
-                <div className="row position-fixed bottom-0 start-0 w-100 bg-white border-top py-2 px-3 shadow-lg" id="news-quick-actions">
-                    <div className="col-12 d-flex justify-content-between align-items-center">
-                        <div className="d-flex gap-2">
-                            <Button
-                                icon="pi pi-refresh"
-                                className="btn btn-soft-primary btn-sm"
-                                tooltip="Refresh Feed"
-                                tooltipOptions={{ position: 'top' }}
-                                id="news-refresh-btn"
-                            />
-                            <Button
-                                icon="pi pi-filter"
-                                className="btn btn-soft-primary btn-sm"
-                                tooltip="Quick Filters"
-                                tooltipOptions={{ position: 'top' }}
-                                id="news-filter-btn"
-                            />
-                        </div>
-                        <div className="d-flex gap-2">
-                            <Button
-                                icon="pi pi-map"
-                                label="Map View"
-                                className="btn btn-outline-primary btn-sm waves-effect waves-light"
-                                onClick={() => navigate('/news/map')}
-                                id="news-map-btn"
-                            />
-                            <Button
-                                icon="pi pi-chart-line"
-                                label="Analytics"
-                                className="btn btn-outline-primary btn-sm waves-effect waves-light"
-                                onClick={() => navigate('/news/analytics')}
-                                id="news-analytics-btn"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <OverlayPanel 
-                ref={quickViewRef} 
-                showCloseIcon
-                dismissable
-                className="quick-view-panel"
-                onShow={() => setShowQuickView(true)}
-                onHide={() => setShowQuickView(false)}
-            >
-                {renderQuickView()}
-            </OverlayPanel>
-
-            {renderModal()}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div className="d-flex align-items-center gap-2">
+          <span className="p-input-icon-left flex-grow-1">
+            <i className="pi pi-search" />
+            <InputText
+              value={filters.search}
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              placeholder="Search articles..."
+              className="w-100"
+            />
+          </span>
         </div>
+        <div className="d-flex align-items-center gap-2">
+          <Dropdown
+            value={filters.category}
+            options={[
+              { label: 'All Categories', value: 'all' },
+              ...categories.map(cat => ({ label: cat, value: cat.toLowerCase() }))
+            ]}
+            onChange={(e) => setFilters(prev => ({ ...prev, category: e.value }))}
+            className="w-200px"
+          />
+          <Dropdown
+            value={filters.sortBy}
+            options={sortOptions}
+            onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.value }))}
+            className="w-200px"
+          />
+        </div>
+      </div>
     );
+  };
+
+  const renderArticleCard = (article) => {
+    return (
+      <div className="col-12 col-md-6 col-lg-4 p-2">
+        <Card className="h-100 cursor-pointer hover-lift" onClick={() => setSelectedArticle(article)}>
+          {article.image_url && (
+            <img
+              src={article.image_url}
+              alt=""
+              className="w-100 card-img-top"
+              style={{ height: '200px', objectFit: 'cover' }}
+            />
+          )}
+          <div className="card-body">
+            <div className="d-flex align-items-center mb-2">
+              <Badge value={article.category} severity={getCategorySeverity(article.category)} />
+              <small className="text-muted ms-auto">
+                {new Date(article.published_at).toLocaleString()}
+              </small>
+            </div>
+            <h5 className="card-title mb-2">{article.title}</h5>
+            <p className="card-text text-truncate-2">{article.summary}</p>
+            
+            {/* AI Analysis Preview */}
+            <div className="mt-3 pt-3 border-top">
+              <div className="d-flex align-items-center gap-2">
+                <i className="pi pi-chart-bar text-primary" />
+                <small>AI Analysis Available</small>
+                <Button
+                  icon="pi pi-eye"
+                  rounded
+                  text
+                  size="small"
+                  className="ms-auto"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedArticle(article);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  };
+
+  const getCategorySeverity = (category) => {
+    switch (category?.toLowerCase()) {
+      case 'security alerts':
+        return 'danger';
+      case 'natural disasters':
+        return 'warning';
+      case 'geopolitical':
+        return 'info';
+      case 'social movements':
+        return 'success';
+      case 'financial & economic':
+        return 'primary';
+      default:
+        return 'info';
+    }
+  };
+
+  return (
+    <div className="page-content">
+      <Container fluid>
+        {/* Page title */}
+        <div className="page-title-box">
+          <h4 className="mb-0">Intelligence News</h4>
+        </div>
+
+        {/* Content */}
+        <Card>
+          <TabView>
+            <TabPanel header="All News">
+              <DataView
+                value={articles}
+                layout="grid"
+                header={renderHeader()}
+                itemTemplate={renderArticleCard}
+                paginator
+                rows={9}
+                loading={loading}
+                emptyMessage="No articles found"
+              />
+            </TabPanel>
+            <TabPanel header="Saved">
+              <div className="p-3">
+                <h5>Saved Articles</h5>
+                <p>Your saved articles will appear here.</p>
+              </div>
+            </TabPanel>
+          </TabView>
+        </Card>
+
+        {/* Article Dialog */}
+        <Dialog
+          visible={!!selectedArticle}
+          onHide={() => setSelectedArticle(null)}
+          header={selectedArticle?.title}
+          style={{ width: '90vw', maxWidth: '1200px' }}
+          maximizable
+        >
+          {selectedArticle && (
+            <div className="row">
+              <div className="col-md-8">
+                {selectedArticle.image_url && (
+                  <img
+                    src={selectedArticle.image_url}
+                    alt=""
+                    className="w-100 mb-4"
+                    style={{ maxHeight: '400px', objectFit: 'cover' }}
+                  />
+                )}
+                <div className="article-content" dangerouslySetInnerHTML={{ __html: selectedArticle.content }} />
+              </div>
+              <div className="col-md-4">
+                <Card title="AI Analysis">
+                  <div className="mb-3">
+                    <h6>Sentiment</h6>
+                    <Badge value={selectedArticle.sentiment} severity={selectedArticle.sentiment === 'positive' ? 'success' : selectedArticle.sentiment === 'negative' ? 'danger' : 'warning'} />
+                  </div>
+                  <div className="mb-3">
+                    <h6>Bias Detection</h6>
+                    <Badge value={selectedArticle.bias} severity="info" />
+                  </div>
+                  <div className="mb-3">
+                    <h6>Key Themes</h6>
+                    <div className="d-flex flex-wrap gap-2">
+                      {selectedArticle.themes?.map((theme, i) => (
+                        <Badge key={i} value={theme} />
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          )}
+        </Dialog>
+      </Container>
+    </div>
+  );
 };
 
 export default News;
