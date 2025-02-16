@@ -1,33 +1,81 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-// Import pages
-import Dashboard from "../pages/Dashboard/index";
-import News from "../pages/News/index";
+// Authentication pages
+const Login = React.lazy(() => import('@pages/Authentication/Login.jsx'));
+const Register = React.lazy(() => import('@pages/Authentication/Register.jsx'));
+const ForgotPassword = React.lazy(() => import('@pages/Authentication/ForgotPassword.jsx'));
+const ResetPassword = React.lazy(() => import('@pages/Authentication/ResetPassword.jsx'));
+const AuthCallback = React.lazy(() => import('@pages/Authentication/AuthCallback.jsx'));
 
-// Temporarily disable auth check for development
-const Authmiddleware = ({ children }) => {
-  // Always return children for development
-  return children;
-};
+// Main pages
+const Dashboard = React.lazy(() => import('@pages/Dashboard/index.jsx'));
+const News = React.lazy(() => import('@pages/News/index.jsx'));
+const Map = React.lazy(() => import('@pages/Map/index.jsx'));
+const Analysis = React.lazy(() => import('@pages/Analysis/index.jsx'));
+const Profile = React.lazy(() => import('@pages/Profile/index.jsx'));
+const Settings = React.lazy(() => import('@pages/Settings/index.jsx'));
 
-// Public routes that don't require authentication
-export const publicRoutes = [
-  // Redirect root to dashboard for development
-  { path: "/", component: () => <Navigate to="/dashboard" /> },
+const publicRoutes = [
+    {
+        path: '/login',
+        element: <Login />
+    },
+    {
+        path: '/register',
+        element: <Register />
+    },
+    {
+        path: '/forgot-password',
+        element: <ForgotPassword />
+    },
+    {
+        path: '/reset-password',
+        element: <ResetPassword />
+    },
+    {
+        path: '/auth/callback',
+        element: <AuthCallback />
+    },
+    {
+        path: '*',
+        element: <Navigate to="/login" replace />
+    }
 ];
 
-// Protected routes that require authentication
-export const protectedRoutes = [
-  { path: "/dashboard", component: Dashboard },
-  { path: "/news", component: News },
-  { path: "/news/bookmarks", component: React.lazy(() => import("../pages/News/Bookmarks")) },
-  { path: "/news/alerts", component: React.lazy(() => import("../pages/News/Alerts")) },
-  { path: "/news/settings", component: React.lazy(() => import("../pages/News/Settings")) },
-  { path: "/news/map", component: React.lazy(() => import("../pages/News/MapView")) },
-  { path: "/news/analytics", component: React.lazy(() => import("../pages/News/Analytics")) },
-  // Add more protected routes here as they are implemented
+const protectedRoutes = [
+    {
+        path: '/dashboard',
+        element: <Dashboard />
+    },
+    {
+        path: '/',
+        element: <Navigate to="/dashboard" replace />
+    },
+    {
+        path: '/news',
+        element: <News />
+    },
+    {
+        path: '/news/:id',
+        element: <News />
+    },
+    {
+        path: '/map',
+        element: <Map />
+    },
+    {
+        path: '/analysis',
+        element: <Analysis />
+    },
+    {
+        path: '/profile',
+        element: <Profile />
+    },
+    {
+        path: '/settings',
+        element: <Settings />
+    }
 ];
 
-export default Authmiddleware;
+export { publicRoutes, protectedRoutes };

@@ -4,11 +4,11 @@ import { AuthProvider } from './contexts/AuthContext';
 import { NewsProvider } from './contexts/NewsContext';
 
 // Import routes
-import { publicRoutes, protectedRoutes } from './routes/route';
+import { publicRoutes, protectedRoutes } from '@/routes/route.jsx';
 
 // Import layouts
-import NonAuthLayout from './components/NonAuthLayout';
-import VerticalLayout from './layouts/VerticalLayout';
+import NonAuthLayout from '@components/NonAuthLayout';
+import VerticalLayout from '@layouts/VerticalLayout';
 
 // Import PrimeReact styles
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
