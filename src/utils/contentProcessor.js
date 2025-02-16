@@ -15,6 +15,14 @@ const majorCities = {
 const countryRegex = new RegExp(Object.keys(countries).join('|'), 'gi');
 const cityRegex = new RegExp(Object.keys(majorCities).join('|'), 'gi');
 
+// Regular expressions for content styling
+const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+const listRegex = /^[-*]\s+(.+)$/gm;
+const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+const codeRegex = /`([^`]+)`/g;
+const emphasisRegex = /\*\*([^*]+)\*\*/g;
+const italicRegex = /\_([^_]+)\_/g;
+
 export const processContent = (content) => {
     if (!content) return { html: '', locations: [] };
 
@@ -51,8 +59,28 @@ export const processContent = (content) => {
         }
     });
 
-    // Process content
+    // Process content with enhanced styling
     let html = content
+        // Convert markdown-style headings
+        .replace(headingRegex, (_, level, text) => 
+            `<h${level.length}>${text}</h${level.length}>`)
+        
+        // Convert markdown-style lists
+        .replace(listRegex, '<li>$1</li>')
+        .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
+        
+        // Convert markdown-style links
+        .replace(linkRegex, '<a href="$2" class="external-link" target="_blank" rel="noopener noreferrer">$1</a>')
+        
+        // Convert inline code
+        .replace(codeRegex, '<code>$1</code>')
+        
+        // Convert bold text
+        .replace(emphasisRegex, '<strong>$1</strong>')
+        
+        // Convert italic text
+        .replace(italicRegex, '<em>$1</em>')
+        
         // Convert newlines to paragraphs
         .split('\n\n')
         .map(para => para.trim())
@@ -78,12 +106,15 @@ export const processContent = (content) => {
         .replace(/(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4}-\d{2}-\d{2})/g, 
             '<span class="date">$1</span>')
         
-        // Style organization names (basic)
+        // Style organization names
         .replace(/([A-Z][A-Za-z]+ (?:Corporation|Inc\.|Ltd\.|LLC|Group|Organization))/g, 
             '<span class="organization">$1</span>')
         
         // Add paragraph spacing
-        .replace(/<\/p><p>/g, '</p>\n<p>');
+        .replace(/<\/p><p>/g, '</p>\n<p>')
+        
+        // Style bullet points
+        .replace(/•/g, '<span class="bullet-point">•</span>');
 
     return { html, locations };
 };

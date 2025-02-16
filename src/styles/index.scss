@@ -1,0 +1,82 @@
+:root {
+  // Theme colors
+  --primary-color: #6366F1;
+  --primary-color-darker: #4F46E5;
+  --secondary-color: #64748B;
+  --success-color: #22C55E;
+  --info-color: #3B82F6;
+  --warning-color: #F59E0B;
+  --danger-color: #EF4444;
+  
+  // Text colors
+  --text-color: #1E293B;
+  --text-color-secondary: #64748B;
+  
+  // Background colors
+  --surface-ground: #F8FAFC;
+  --surface-section: #FFFFFF;
+  --surface-card: #FFFFFF;
+  --surface-overlay: #FFFFFF;
+  --surface-border: #E2E8F0;
+  
+  // Other variables
+  --border-radius: 6px;
+  --focus-ring: 0 0 0 2px #C7D2FE;
+}
+
+// Global styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background-color: var(--surface-ground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Layout classes
+.layout-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-main {
+  flex: 1;
+  padding: 2rem;
+}
+
+// Card styles
+.card {
+  background: var(--surface-card);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+// Utility classes
+.text-primary { color: var(--primary-color); }
+.text-secondary { color: var(--secondary-color); }
+.text-success { color: var(--success-color); }
+.text-info { color: var(--info-color); }
+.text-warning { color: var(--warning-color); }
+.text-danger { color: var(--danger-color); }
+
+// Responsive breakpoints using PrimeFlex variables
+@media screen and (max-width: 991px) {
+  .layout-main {
+    padding: 1rem;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .layout-main {
+    padding: 0.5rem;
+  }
+}
