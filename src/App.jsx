@@ -4,7 +4,6 @@ import { RecoilRoot } from 'recoil';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
-import AuthLayout from './layouts/AuthLayout';
 
 // Pages
 import News from './pages/News';
@@ -20,13 +19,6 @@ function App() {
       <Router>
         <Suspense fallback={<div>Loading...</div>}>
           <Routes>
-            {/* Auth routes */}
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<div>Login</div>} />
-              <Route path="/register" element={<div>Register</div>} />
-            </Route>
-
-            {/* Main app routes */}
             <Route element={<MainLayout />}>
               <Route path="/" element={<News />} />
               <Route path="/settings" element={<Settings />} />
