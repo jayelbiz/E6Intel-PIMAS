@@ -1,118 +1,108 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { Badge } from "primereact/badge";
-import { Button } from "primereact/button";
-import { Avatar } from "primereact/avatar";
-import { Menu } from "primereact/menu";
-import { useRef } from "react";
-import logo from "../../assets/images/logo.svg";
-import "./styles.scss";
+import React from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Button } from 'primereact/button';
+import { Badge } from 'primereact/badge';
+import { Avatar } from 'primereact/avatar';
+import { useAuth } from '@hooks/useAuth';
 
 const GlobalNavbar = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const menuRef = useRef(null);
-  const { unreadAlerts = 0 } = useSelector((state) => state.alerts || {});
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { user, signOut } = useAuth();
 
-  const userMenuItems = [
-    {
-      label: "Profile",
-      icon: "pi pi-user",
-      command: () => {
-        // Handle profile click
-      }
-    },
-    {
-      label: "Settings",
-      icon: "pi pi-cog",
-      command: () => {
-        // Handle settings click
-      }
-    },
-    { separator: true },
-    {
-      label: "Logout",
-      icon: "pi pi-power-off",
-      command: () => {
-        // Handle logout
-      }
-    }
-  ];
+    const handleSignOut = async () => {
+        await signOut();
+        navigate('/login');
+    };
 
-  const start = (
-    <Link to="/" className="flex align-items-center no-underline">
-      <img src={logo} alt="Logo" height="32" className="mr-2" />
-      <span className="text-xl font-bold hidden md:inline text-900">E6Intel PIMAS</span>
-    </Link>
-  );
+    return (
+        <div className="navbar-header">
+            {/* Left side */}
+            <div className="d-flex align-items-center">
+                {/* Logo */}
+                <div className="navbar-brand-box">
+                    <Link to="/" className="logo">
+                        <span className="logo-sm">
+                            <img src="/logo-sm.png" alt="" height="22" />
+                        </span>
+                        <span className="logo-lg">
+                            <img src="/logo-dark.png" alt="" height="17" />
+                        </span>
+                    </Link>
+                </div>
 
-  const end = (
-    <div className="flex align-items-center gap-3">
-      <Link to="/alerts" className="p-link">
-        <i className="pi pi-bell p-overlay-badge text-xl">
-          {unreadAlerts > 0 && (
-            <Badge value={unreadAlerts} severity="danger" />
-          )}
-        </i>
-      </Link>
-      <Link to="/news" className="px-3 nav-link">
-        <i className="bx bx-news me-2"></i>
-        <span>News</span>
-      </Link>
-      <Button
-        icon="pi pi-user"
-        rounded
-        text
-        severity="secondary"
-        onClick={(e) => menuRef.current.toggle(e)}
-        aria-controls="user-menu"
-        aria-haspopup
-      />
-      <Menu
-        model={userMenuItems}
-        popup
-        ref={menuRef}
-        id="user-menu"
-        className="w-15rem"
-      />
-    </div>
-  );
+                {/* Toggle Button */}
+                <Button 
+                    icon="pi pi-bars"
+                    className="btn header-item"
+                    onClick={() => document.body.classList.toggle('sidebar-enable')}
+                />
 
-  const items = [
-    {
-      label: "Home",
-      icon: "pi pi-home",
-      className: location.pathname === "/" ? "active" : "",
-      command: () => {
-        window.location.href = "/";
-      }
-    },
-    {
-      label: "Map",
-      icon: "pi pi-map",
-      className: location.pathname === "/map" ? "active" : "",
-      command: () => {
-        window.location.href = "/map";
-      }
-    }
-  ];
+                {/* Main Navigation */}
+                <div className="d-none d-lg-flex align-items-center">
+                    <Link 
+                        to="/map" 
+                        className={`nav-link px-3 ${location.pathname === '/map' ? 'active' : ''}`}
+                    >
+                        <i className="bx bx-map me-2"></i>
+                        Map
+                    </Link>
 
-  return (
-    <div className="sticky top-0 z-5 shadow-2">
-      <Menubar
-        model={items}
-        start={start}
-        end={end}
-        className="border-none surface-card"
-        pt={{
-          root: { className: 'p-3' },
-          button: { className: 'p-2' },
-          menu: { className: 'p-0' }
-        }}
-      />
-    </div>
-  );
+                    <Link 
+                        to="/analysis" 
+                        className={`nav-link px-3 ${location.pathname === '/analysis' ? 'active' : ''}`}
+                    >
+                        <i className="bx bx-analyse me-2"></i>
+                        Analysis
+                    </Link>
+                </div>
+            </div>
+
+            {/* Right side */}
+            <div className="d-flex align-items-center">
+                {/* Search */}
+                <Button 
+                    icon="pi pi-search"
+                    className="header-item noti-icon p-link"
+                    onClick={() => navigate('/search')}
+                />
+
+                {/* Notifications */}
+                <Button
+                    icon="pi pi-bell"
+                    badge="3"
+                    className="header-item noti-icon p-link"
+                    badgeClassName="p-badge-danger"
+                    onClick={() => navigate('/notifications')}
+                />
+
+                {/* User Profile */}
+                <div className="dropdown">
+                    <Button
+                        className="header-item user-dropdown p-link"
+                        onClick={() => navigate('/profile')}
+                    >
+                        <Avatar 
+                            image={user?.avatar_url || "/avatar-placeholder.png"}
+                            shape="circle"
+                            className="me-2"
+                        />
+                        <span className="d-none d-xl-inline-block ms-1">
+                            {user?.name}
+                        </span>
+                        <i className="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                    </Button>
+                </div>
+
+                {/* Settings */}
+                <Button
+                    icon="pi pi-cog"
+                    className="header-item noti-icon p-link"
+                    onClick={() => navigate('/settings')}
+                />
+            </div>
+        </div>
+    );
 };
 
 export default GlobalNavbar;
