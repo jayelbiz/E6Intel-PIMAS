@@ -17,7 +17,7 @@ import logo from "../../assets/images/logo.svg";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const { signIn, signInWithProvider } = useAuth();
+  const { signInWithEmail: signIn, signInWithProvider } = useAuth();
   const navigate = useNavigate();
   const { ToastComponent, showSuccess, showError } = useToast();
 
