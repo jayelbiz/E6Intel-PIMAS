@@ -19,24 +19,29 @@ import 'primeflex/primeflex.css';
 import './assets/scss/theme.scss';
 import './layouts/styles.scss';
 
+const LoadingSpinner = () => (
+    <div className="auth-page-wrapper pt-5">
+        <div className="auth-page-content">
+            <div className="container">
+                <div className="row justify-content-center">
+                    <div className="col-md-8 col-lg-6 col-xl-5">
+                        <div className="text-center">
+                            <i className="pi pi-spin pi-spinner" style={{ fontSize: '2rem' }}></i>
+                            <h4 className="mt-4">Loading...</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
 const App = () => {
     return (
         <Router>
             <AuthProvider>
                 <NewsProvider>
-                    <Suspense fallback={
-                        <div className="auth-page-wrapper pt-5">
-                            <div className="auth-page-content">
-                                <div className="container">
-                                    <div className="row justify-content-center">
-                                        <div className="col-md-8 col-lg-6 col-xl-5 text-center">
-                                            <i className="pi pi-spin pi-spinner" style={{ fontSize: '3rem' }}></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }>
+                    <Suspense fallback={<LoadingSpinner />}>
                         <Routes>
                             {/* Public Routes */}
                             {publicRoutes.map((route, idx) => (
@@ -45,7 +50,7 @@ const App = () => {
                                     path={route.path}
                                     element={
                                         <NonAuthLayout>
-                                            <route.component />
+                                            {route.element}
                                         </NonAuthLayout>
                                     }
                                 />
@@ -58,7 +63,7 @@ const App = () => {
                                     path={route.path}
                                     element={
                                         <VerticalLayout>
-                                            <route.component />
+                                            {route.element}
                                         </VerticalLayout>
                                     }
                                 />
