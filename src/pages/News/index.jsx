@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { Card } from 'primereact/card';
 import { BreadCrumb } from 'primereact/breadcrumb';
 import { Button } from 'primereact/button';
 import { Menu } from 'primereact/menu';
 import NewsFeed from '../../components/News/NewsFeed';
 import { useNavigate } from 'react-router-dom';
+import { NEWS_ROUTES } from '../../constants';
 
 const News = () => {
-    const [menuRef, setMenuRef] = useState(null);
+    const menuRef = useRef(null);
     const navigate = useNavigate();
 
     // Breadcrumb configuration
@@ -22,12 +23,12 @@ const News = () => {
         {
             label: 'View Bookmarks',
             icon: 'pi pi-bookmark',
-            command: () => navigate('/news/bookmarks')
+            command: () => navigate(NEWS_ROUTES.BOOKMARKS)
         },
         {
             label: 'Manage Alerts',
             icon: 'pi pi-bell',
-            command: () => navigate('/news/alerts')
+            command: () => navigate(NEWS_ROUTES.ALERTS)
         },
         {
             separator: true
@@ -35,7 +36,7 @@ const News = () => {
         {
             label: 'Settings',
             icon: 'pi pi-cog',
-            command: () => navigate('/news/settings')
+            command: () => navigate(NEWS_ROUTES.SETTINGS)
         }
     ];
 
@@ -54,24 +55,24 @@ const News = () => {
                             className="p-button-outlined"
                             tooltip="View Bookmarks"
                             tooltipOptions={{ position: 'bottom' }}
-                            onClick={() => navigate('/news/bookmarks')}
+                            onClick={() => navigate(NEWS_ROUTES.BOOKMARKS)}
                         />
                         <Button
                             icon="pi pi-bell"
                             className="p-button-outlined"
                             tooltip="Manage Alerts"
                             tooltipOptions={{ position: 'bottom' }}
-                            onClick={() => navigate('/news/alerts')}
+                            onClick={() => navigate(NEWS_ROUTES.ALERTS)}
                         />
                         <Button
                             icon="pi pi-ellipsis-v"
                             className="p-button-outlined"
-                            onClick={(e) => menuRef.toggle(e)}
+                            onClick={(e) => menuRef.current?.toggle(e)}
                             aria-controls="news-menu"
                             aria-haspopup
                         />
                         <Menu 
-                            ref={(el) => setMenuRef(el)} 
+                            ref={menuRef}
                             id="news-menu"
                             model={menuItems} 
                             popup
@@ -105,13 +106,13 @@ const News = () => {
                             icon="pi pi-map"
                             label="Map View"
                             className="p-button-outlined"
-                            onClick={() => navigate('/news/map')}
+                            onClick={() => navigate(NEWS_ROUTES.MAP)}
                         />
                         <Button
                             icon="pi pi-chart-line"
                             label="Analytics"
                             className="p-button-outlined"
-                            onClick={() => navigate('/news/analytics')}
+                            onClick={() => navigate(NEWS_ROUTES.ANALYTICS)}
                         />
                     </div>
                 </div>

@@ -1,4 +1,6 @@
 import { supabase } from '../config/supabase';
+import { CACHE_DURATION, API_RETRY_ATTEMPTS, API_TIMEOUT } from '../constants';
+import axios from 'axios';
 
 class NewsService {
     constructor() {
@@ -13,24 +15,32 @@ class NewsService {
             gnews: true,
             mediastack: true
         };
+        this.axios = axios.create({
+            timeout: API_TIMEOUT
+        });
     }
 
-    setSources(sources) {
-        this.sources = { ...this.sources, ...sources };
-    }
-
-    async logApiCall(apiName, endpoint, status, responseTime, error = null) {
+    async retryWithBackoff(fn, retries = API_RETRY_ATTEMPTS) {
         try {
-            await supabase.from('api_logs').insert({
+            return await fn();
+        } catch (error) {
+            if (retries === 0) throw error;
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, API_RETRY_ATTEMPTS - retries) * 1000));
+            return this.retryWithBackoff(fn, retries - 1);
+        }
+    }
+
+    async logApiCall(apiName, endpoint, status, error = null, metadata = {}) {
+        try {
+            await supabase.from('api_logs').insert([{
                 api_name: apiName,
                 endpoint,
                 response_status: status,
-                response_time_ms: responseTime,
-                error_message: error,
-                request_metadata: { timestamp: new Date().toISOString() }
-            });
-        } catch (error) {
-            console.error('Error logging API call:', error);
+                error_message: error?.message,
+                request_metadata: metadata
+            }]);
+        } catch (err) {
+            console.error('Failed to log API call:', err);
         }
     }
 
@@ -89,16 +99,16 @@ class NewsService {
     async fetchGuardianNews(query = '') {
         const startTime = Date.now();
         try {
-            const response = await fetch(
+            const response = await this.retryWithBackoff(() => this.axios.get(
                 `https://content.guardianapis.com/search?api-key=${this.guardianApiKey}&show-fields=thumbnail,bodyText&q=${query}`
-            );
-            
+            ));
+
             const responseTime = Date.now() - startTime;
-            await this.logApiCall('Guardian', '/search', response.status, responseTime);
+            await this.logApiCall('Guardian', '/search', response.status);
 
             if (!response.ok) throw new Error('Guardian API request failed');
 
-            const data = await response.json();
+            const data = response.data;
             return data.response.results.map(article => ({
                 title: article.webTitle,
                 content: article.fields?.bodyText,
@@ -111,7 +121,7 @@ class NewsService {
             }));
         } catch (error) {
             console.error('Error fetching from Guardian:', error);
-            await this.logApiCall('Guardian', '/search', 500, Date.now() - startTime, error.message);
+            await this.logApiCall('Guardian', '/search', 500, error);
             return [];
         }
     }
@@ -119,16 +129,16 @@ class NewsService {
     async fetchNewsAPI(query = '') {
         const startTime = Date.now();
         try {
-            const response = await fetch(
+            const response = await this.retryWithBackoff(() => this.axios.get(
                 `https://newsapi.org/v2/everything?q=${query}&apiKey=${this.newsApiKey}&language=en`
-            );
-            
+            ));
+
             const responseTime = Date.now() - startTime;
-            await this.logApiCall('NewsAPI', '/everything', response.status, responseTime);
+            await this.logApiCall('NewsAPI', '/everything', response.status);
 
             if (!response.ok) throw new Error('NewsAPI request failed');
 
-            const data = await response.json();
+            const data = response.data;
             return data.articles.map(article => ({
                 title: article.title,
                 content: article.content,
@@ -141,7 +151,7 @@ class NewsService {
             }));
         } catch (error) {
             console.error('Error fetching from NewsAPI:', error);
-            await this.logApiCall('NewsAPI', '/everything', 500, Date.now() - startTime, error.message);
+            await this.logApiCall('NewsAPI', '/everything', 500, error);
             return [];
         }
     }
@@ -149,16 +159,16 @@ class NewsService {
     async fetchGNews(query = '') {
         const startTime = Date.now();
         try {
-            const response = await fetch(
+            const response = await this.retryWithBackoff(() => this.axios.get(
                 `https://gnews.io/api/v4/search?q=${query}&lang=en&country=us&max=10&apikey=${this.gNewsApiKey}`
-            );
-            
+            ));
+
             const responseTime = Date.now() - startTime;
-            await this.logApiCall('GNews', '/search', response.status, responseTime);
+            await this.logApiCall('GNews', '/search', response.status);
 
             if (!response.ok) throw new Error('GNews API request failed');
 
-            const data = await response.json();
+            const data = response.data;
             return data.articles.map(article => ({
                 title: article.title,
                 content: article.content,
@@ -171,7 +181,7 @@ class NewsService {
             }));
         } catch (error) {
             console.error('Error fetching from GNews:', error);
-            await this.logApiCall('GNews', '/search', 500, Date.now() - startTime, error.message);
+            await this.logApiCall('GNews', '/search', 500, error);
             return [];
         }
     }
@@ -230,16 +240,16 @@ class NewsService {
             if (categories.length > 0) params.append('categories', categories.join(','));
             if (sources.length > 0) params.append('sources', sources.join(','));
 
-            const response = await fetch(
+            const response = await this.retryWithBackoff(() => this.axios.get(
                 `http://api.mediastack.com/v1/news?${params.toString()}`
-            );
-            
+            ));
+
             const responseTime = Date.now() - startTime;
-            await this.logApiCall('Mediastack', '/news', response.status, responseTime);
+            await this.logApiCall('Mediastack', '/news', response.status);
 
             if (!response.ok) throw new Error('Mediastack API request failed');
 
-            const data = await response.json();
+            const data = response.data;
             
             if (!data.data || !Array.isArray(data.data)) {
                 throw new Error('Invalid Mediastack API response format');
@@ -265,7 +275,7 @@ class NewsService {
                 }));
         } catch (error) {
             console.error('Error fetching from Mediastack:', error);
-            await this.logApiCall('Mediastack', '/news', 500, Date.now() - startTime, error.message);
+            await this.logApiCall('Mediastack', '/news', 500, error);
             return [];
         }
     }
@@ -289,40 +299,45 @@ class NewsService {
     }
 
     async fetchAllNews(query = '', options = {}) {
-        // First check cache
-        const cachedNews = await this.getCachedNews();
-        if (cachedNews.length > 0 && !options.bypass_cache) {
-            return this.filterNewsBySource(cachedNews);
-        }
+        try {
+            // First check cache
+            const cachedNews = await this.getCachedNews();
+            if (cachedNews.length > 0 && !options.bypass_cache) {
+                return this.filterNewsBySource(cachedNews);
+            }
 
-        // Prepare API calls based on enabled sources
-        const apiCalls = [];
-        
-        if (this.sources.guardian) {
-            apiCalls.push(this.fetchGuardianNews(query));
-        }
-        if (this.sources.newsapi) {
-            apiCalls.push(this.fetchNewsAPI(query));
-        }
-        if (this.sources.gnews) {
-            apiCalls.push(this.fetchGNews(query));
-        }
-        if (this.sources.mediastack) {
-            apiCalls.push(this.fetchMediastack(query, options.mediastack));
-        }
+            // Prepare API calls based on enabled sources
+            const apiCalls = [];
+            
+            if (this.sources.guardian) {
+                apiCalls.push(this.fetchGuardianNews(query));
+            }
+            if (this.sources.newsapi) {
+                apiCalls.push(this.fetchNewsAPI(query));
+            }
+            if (this.sources.gnews) {
+                apiCalls.push(this.fetchGNews(query));
+            }
+            if (this.sources.mediastack) {
+                apiCalls.push(this.fetchMediastack(query, options.mediastack));
+            }
 
-        // Fetch from enabled sources in parallel
-        const results = await Promise.all(apiCalls);
-        
-        // Combine results
-        const allNews = results.flat();
-        
-        // Cache if we have results
-        if (allNews.length > 0) {
-            await this.cacheNews(allNews);
-        }
+            // Fetch from enabled sources in parallel
+            const results = await Promise.all(apiCalls);
+            
+            // Combine results
+            const allNews = results.flat();
+            
+            // Cache if we have results
+            if (allNews.length > 0) {
+                await this.cacheNews(allNews);
+            }
 
-        return this.filterNewsBySource(allNews);
+            return this.filterNewsBySource(allNews);
+        } catch (error) {
+            console.error('Error fetching news:', error);
+            throw error;
+        }
     }
 
     filterNewsBySource(articles) {
