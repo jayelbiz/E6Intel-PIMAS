@@ -11,22 +11,19 @@ export default defineConfig({
       '@pages': path.resolve(__dirname, './src/pages'),
       '@services': path.resolve(__dirname, './src/services'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@contexts': path.resolve(__dirname, './src/contexts'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@assets': path.resolve(__dirname, './src/assets'),
       '@styles': path.resolve(__dirname, './src/styles'),
-      '@layouts': path.resolve(__dirname, './src/layouts'),
-      '@store': path.resolve(__dirname, './src/store'),
       '@config': path.resolve(__dirname, './src/config')
     }
   },
   server: {
-    port: 5173,
-    host: true,
-    hmr: {
-      overlay: true
-    }
+    port: 3000,
+    open: true
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
-    chunkSizeWarningLimit: 1600
+    sourcemap: true
   }
 });

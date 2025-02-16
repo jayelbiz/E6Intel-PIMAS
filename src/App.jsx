@@ -1,14 +1,13 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, BrowserRouter as Router } from 'react-router-dom';
-import { AuthProvider } from '@contexts/AuthContext';
-import { NewsProvider } from '@contexts/NewsContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { NewsProvider } from './contexts/NewsContext';
 
 // Import routes
 import { publicRoutes, protectedRoutes } from './routes/route';
-import Authmiddleware from './routes/route';
 
 // Import layouts
-import NonAuthLayout from './layouts/NonAuthLayout';
+import NonAuthLayout from './components/NonAuthLayout';
 import VerticalLayout from './layouts/VerticalLayout';
 
 // Import PrimeReact styles
@@ -53,7 +52,7 @@ const App = () => {
                 />
               ))}
 
-              {/* Protected Routes - No auth check for development */}
+              {/* Protected Routes */}
               {protectedRoutes.map((route, idx) => (
                 <Route
                   key={idx}

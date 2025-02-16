@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { Avatar } from 'primereact/avatar';
-import { useAuth } from '@hooks/useAuth';
-import { useNews } from '@contexts/NewsContext';
 import { OverlayPanel } from 'primereact/overlaypanel';
-import { useRef } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNews } from '../../contexts/NewsContext';
 
 const GlobalNavbar = () => {
     const navigate = useNavigate();
