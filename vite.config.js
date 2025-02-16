@@ -33,6 +33,26 @@ export default defineConfig({
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'primereact', 'chart.js', 'quill']
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      external: ['chart.js', 'quill'],
+      output: {
+        globals: {
+          'chart.js': 'Chart',
+          'quill': 'Quill'
+        },
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom']
+        }
+      }
+    }
+  },
   server: {
     port: 3000,
     host: true,
@@ -40,20 +60,5 @@ export default defineConfig({
     hmr: {
       overlay: true
     }
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-    chunkSizeWarningLimit: 1600,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom']
-        }
-      }
-    }
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'primereact']
   }
 });
