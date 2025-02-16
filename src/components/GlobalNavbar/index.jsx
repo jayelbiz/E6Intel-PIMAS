@@ -4,14 +4,29 @@ import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { Avatar } from 'primereact/avatar';
 import { useAuth } from '@hooks/useAuth';
+import { useNews } from '@contexts/NewsContext';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { useRef } from 'react';
 
 const GlobalNavbar = () => {
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
+    const { unreadCount, latestArticles, markArticleAsRead } = useNews();
+    const newsOverlayRef = useRef(null);
 
     const handleSignOut = async () => {
         await signOut();
         navigate('/login');
+    };
+
+    const handleNewsClick = (e) => {
+        newsOverlayRef.current.toggle(e);
+    };
+
+    const handleArticleClick = (article) => {
+        markArticleAsRead(article.id);
+        navigate(`/news/${article.id}`);
+        newsOverlayRef.current.hide();
     };
 
     return (
@@ -36,11 +51,20 @@ const GlobalNavbar = () => {
                         <div className="collapse navbar-collapse" id="topnav-menu-content">
                             <ul className="navbar-nav">
                                 <li className="nav-item">
-                                    <Link to="/news" className="nav-link">
+                                    <Button
+                                        className="nav-link"
+                                        onClick={handleNewsClick}
+                                    >
                                         <i className="bx bx-news me-2"></i>
                                         <span>News</span>
-                                        <Badge value="5" className="ms-1" severity="danger"></Badge>
-                                    </Link>
+                                        {unreadCount > 0 && (
+                                            <Badge 
+                                                value={unreadCount} 
+                                                className="ms-1" 
+                                                severity="danger"
+                                            ></Badge>
+                                        )}
+                                    </Button>
                                 </li>
                                 <li className="nav-item">
                                     <Link to="/map" className="nav-link">
@@ -59,6 +83,54 @@ const GlobalNavbar = () => {
                     </nav>
                 </div>
             </div>
+
+            {/* News Quick View Panel */}
+            <OverlayPanel 
+                ref={newsOverlayRef} 
+                className="news-overlay"
+                showCloseIcon
+            >
+                <div className="p-3" style={{ width: '350px' }}>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="m-0">Latest News</h5>
+                        <Link 
+                            to="/news" 
+                            className="btn btn-link p-0"
+                            onClick={() => newsOverlayRef.current.hide()}
+                        >
+                            View All
+                        </Link>
+                    </div>
+                    <div className="news-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                        {latestArticles.map(article => (
+                            <div 
+                                key={article.id}
+                                className="news-item p-2 mb-2 border-bottom cursor-pointer hover-lift"
+                                onClick={() => handleArticleClick(article)}
+                            >
+                                <div className="d-flex align-items-start">
+                                    {article.image_url && (
+                                        <img 
+                                            src={article.image_url} 
+                                            alt="" 
+                                            className="me-2" 
+                                            style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+                                        />
+                                    )}
+                                    <div>
+                                        <h6 className="mb-1 text-truncate" style={{ maxWidth: '250px' }}>
+                                            {article.title}
+                                        </h6>
+                                        <small className="text-muted">
+                                            {new Date(article.published_at).toLocaleString()}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </OverlayPanel>
 
             {/* Right side */}
             <div className="d-flex align-items-center">

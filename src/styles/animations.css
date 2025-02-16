@@ -205,3 +205,54 @@
         scroll-behavior: auto !important;
     }
 }
+
+/* News Overlay Styles */
+.news-overlay {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.news-overlay .p-overlaypanel-content {
+    padding: 0;
+}
+
+.news-item {
+    transition: all var(--transition-duration) var(--transition-timing);
+}
+
+.news-item:hover {
+    background-color: var(--surface-hover);
+    transform: translateY(-1px);
+}
+
+.news-item:last-child {
+    border-bottom: none !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Ensure the overlay has a proper z-index */
+.p-overlaypanel {
+    z-index: 1000;
+}
+
+/* Add smooth scrolling to the news list */
+.news-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-400) transparent;
+}
+
+.news-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.news-list::-webkit-scrollbar-thumb {
+    background-color: var(--surface-400);
+    border-radius: 3px;
+}
