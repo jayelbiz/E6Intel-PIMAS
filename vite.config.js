@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 export default defineConfig({
   plugins: [
     react({
-      include: "**/*.{jsx,tsx}",
+      jsxRuntime: 'automatic',
       babel: {
         presets: [
           '@babel/preset-env',
@@ -40,7 +40,16 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'primereact', 'chart.js', 'quill']
   },
+  esbuild: {
+    loader: 'jsx',
+    include: /\.[jt]sx?$/,
+    exclude: []
+  },
   build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true
+    },
     outDir: 'dist',
     sourcemap: true,
     chunkSizeWarningLimit: 1600,
