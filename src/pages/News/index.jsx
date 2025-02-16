@@ -11,14 +11,12 @@ const News = () => {
     const menuRef = useRef(null);
     const navigate = useNavigate();
 
-    // Breadcrumb configuration
     const items = [
         { label: 'Home', command: () => navigate('/') },
         { label: 'News' }
     ];
     const home = { icon: 'pi pi-home', command: () => navigate('/') };
 
-    // Action menu items
     const menuItems = [
         {
             label: 'View Bookmarks',
@@ -41,79 +39,104 @@ const News = () => {
     ];
 
     return (
-        <div className="page-content">
+        <div className="page-content" id="news-page-content">
             <div className="container-fluid">
                 {/* Page Header */}
-                <div className="flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 className="mb-2">News Intelligence Feed</h4>
-                        <BreadCrumb model={items} home={home} className="p-0 text-sm" />
-                    </div>
-                    <div className="flex align-items-center gap-2">
-                        <Button 
-                            icon="pi pi-bookmark"
-                            className="p-button-outlined"
-                            tooltip="View Bookmarks"
-                            tooltipOptions={{ position: 'bottom' }}
-                            onClick={() => navigate(NEWS_ROUTES.BOOKMARKS)}
-                        />
-                        <Button
-                            icon="pi pi-bell"
-                            className="p-button-outlined"
-                            tooltip="Manage Alerts"
-                            tooltipOptions={{ position: 'bottom' }}
-                            onClick={() => navigate(NEWS_ROUTES.ALERTS)}
-                        />
-                        <Button
-                            icon="pi pi-ellipsis-v"
-                            className="p-button-outlined"
-                            onClick={(e) => menuRef.current?.toggle(e)}
-                            aria-controls="news-menu"
-                            aria-haspopup
-                        />
-                        <Menu 
-                            ref={menuRef}
-                            id="news-menu"
-                            model={menuItems} 
-                            popup
-                        />
+                <div className="row">
+                    <div className="col-12">
+                        <div className="page-title-box d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 className="mb-0 font-size-18">News Intelligence Feed</h4>
+                                <BreadCrumb 
+                                    model={items} 
+                                    home={home} 
+                                    className="mt-2"
+                                    id="news-breadcrumb"
+                                />
+                            </div>
+                            <div className="d-flex align-items-center gap-2">
+                                <Button 
+                                    icon="pi pi-bookmark"
+                                    className="btn btn-light btn-sm"
+                                    tooltip="View Bookmarks"
+                                    tooltipOptions={{ position: 'bottom' }}
+                                    onClick={() => navigate(NEWS_ROUTES.BOOKMARKS)}
+                                    id="news-bookmark-btn"
+                                />
+                                <Button
+                                    icon="pi pi-bell"
+                                    className="btn btn-light btn-sm"
+                                    tooltip="Manage Alerts"
+                                    tooltipOptions={{ position: 'bottom' }}
+                                    onClick={() => navigate(NEWS_ROUTES.ALERTS)}
+                                    id="news-alerts-btn"
+                                />
+                                <Button
+                                    icon="pi pi-ellipsis-v"
+                                    className="btn btn-light btn-sm"
+                                    onClick={(e) => menuRef.current?.toggle(e)}
+                                    aria-controls="news-actions-menu"
+                                    aria-haspopup
+                                    id="news-menu-btn"
+                                />
+                                <Menu 
+                                    ref={menuRef}
+                                    id="news-actions-menu"
+                                    model={menuItems} 
+                                    popup
+                                    className="shadow-3"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* News Feed Container */}
-                <Card className="shadow-2">
-                    <NewsFeed />
-                </Card>
+                <div className="row">
+                    <div className="col-12">
+                        <div className="card" id="news-feed-container">
+                            <div className="card-body">
+                                <NewsFeed />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Quick Actions Footer */}
-                <div className="fixed bottom-0 left-0 w-full bg-white border-top-1 surface-border p-3 flex justify-content-between align-items-center shadow-2">
-                    <div className="flex gap-2">
-                        <Button
-                            icon="pi pi-refresh"
-                            className="p-button-text"
-                            tooltip="Refresh Feed"
-                            tooltipOptions={{ position: 'top' }}
-                        />
-                        <Button
-                            icon="pi pi-filter"
-                            className="p-button-text"
-                            tooltip="Quick Filters"
-                            tooltipOptions={{ position: 'top' }}
-                        />
-                    </div>
-                    <div className="flex gap-2">
-                        <Button
-                            icon="pi pi-map"
-                            label="Map View"
-                            className="p-button-outlined"
-                            onClick={() => navigate(NEWS_ROUTES.MAP)}
-                        />
-                        <Button
-                            icon="pi pi-chart-line"
-                            label="Analytics"
-                            className="p-button-outlined"
-                            onClick={() => navigate(NEWS_ROUTES.ANALYTICS)}
-                        />
+                <div className="row position-fixed bottom-0 start-0 w-100 bg-white border-top py-2 px-3 shadow-lg" id="news-quick-actions">
+                    <div className="col-12 d-flex justify-content-between align-items-center">
+                        <div className="d-flex gap-2">
+                            <Button
+                                icon="pi pi-refresh"
+                                className="btn btn-soft-primary btn-sm"
+                                tooltip="Refresh Feed"
+                                tooltipOptions={{ position: 'top' }}
+                                id="news-refresh-btn"
+                            />
+                            <Button
+                                icon="pi pi-filter"
+                                className="btn btn-soft-primary btn-sm"
+                                tooltip="Quick Filters"
+                                tooltipOptions={{ position: 'top' }}
+                                id="news-filter-btn"
+                            />
+                        </div>
+                        <div className="d-flex gap-2">
+                            <Button
+                                icon="pi pi-map"
+                                label="Map View"
+                                className="btn btn-outline-primary btn-sm waves-effect waves-light"
+                                onClick={() => navigate(NEWS_ROUTES.MAP)}
+                                id="news-map-btn"
+                            />
+                            <Button
+                                icon="pi pi-chart-line"
+                                label="Analytics"
+                                className="btn btn-outline-primary btn-sm waves-effect waves-light"
+                                onClick={() => navigate(NEWS_ROUTES.ANALYTICS)}
+                                id="news-analytics-btn"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
