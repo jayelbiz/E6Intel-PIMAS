@@ -1,37 +1,33 @@
-import PropTypes from "prop-types";
 import React from "react";
-import {
-  Container
-} from "reactstrap";
+import { Container } from "reactstrap";
 
-//Import Breadcrumb
-import Breadcrumbs from "@components/Common/Breadcrumb";
-
-//i18n
-import { withTranslation } from "react-i18next";
-
-const Dashboard = (props) => {
-
-  //meta title
-  document.title = "Dashboard | Skote - Vite React Admin & Dashboard Template";
+const Dashboard = () => {
+  document.title = "Dashboard | E6Intel PIMAS";
 
   return (
-    <React.Fragment>
-      <div className="page-content">
-        <Container fluid>
-          {/* Render Breadcrumb */}
-          <Breadcrumbs title={props.t("Dashboards")} breadcrumbItem={props.t("Dashboard")} />
-        </Container>
-      </div>
+    <div className="page-content">
+      <Container fluid>
+        {/* Page title */}
+        <div className="page-title-box">
+          <h4 className="mb-0">Dashboard</h4>
+        </div>
 
-    </React.Fragment>
+        {/* Content */}
+        <div className="row">
+          <div className="col-12">
+            <div className="card">
+              <div className="card-body">
+                <h4 className="card-title">Welcome to E6Intel PIMAS</h4>
+                <p className="card-text">
+                  Your intelligence analysis platform is ready. Navigate using the menu on the left.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </div>
   );
 };
 
-Dashboard.propTypes = {
-  t: PropTypes.any,
-  chartsData: PropTypes.any,
-  onGetChartsData: PropTypes.func,
-};
-
-export default withTranslation()(Dashboard);
+export default Dashboard;
