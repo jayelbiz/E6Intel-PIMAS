@@ -1,18 +1,15 @@
-import { countries } from 'countries-list';
-
 // List of major cities and their coordinates
 const majorCities = {
-    'new york': { lat: 40.7128, lng: -74.0060 },
-    'london': { lat: 51.5074, lng: -0.1278 },
-    'paris': { lat: 48.8566, lng: 2.3522 },
-    'tokyo': { lat: 35.6762, lng: 139.6503 },
-    'beijing': { lat: 39.9042, lng: 116.4074 },
-    'moscow': { lat: 55.7558, lng: 37.6173 },
+    'new york': { lat: 40.7128, lng: -74.0060, country: 'USA' },
+    'london': { lat: 51.5074, lng: -0.1278, country: 'UK' },
+    'paris': { lat: 48.8566, lng: 2.3522, country: 'France' },
+    'tokyo': { lat: 35.6762, lng: 139.6503, country: 'Japan' },
+    'beijing': { lat: 39.9042, lng: 116.4074, country: 'China' },
+    'moscow': { lat: 55.7558, lng: 37.6173, country: 'Russia' },
     // Add more cities as needed
 };
 
 // Regular expressions for location detection
-const countryRegex = new RegExp(Object.keys(countries).join('|'), 'gi');
 const cityRegex = new RegExp(Object.keys(majorCities).join('|'), 'gi');
 
 // Regular expressions for content styling
@@ -28,108 +25,50 @@ export const processContent = (content) => {
 
     // Extract locations
     const locations = [];
-    const foundCountries = new Set();
     const foundCities = new Set();
-
-    // Find countries
-    const countryMatches = content.match(countryRegex) || [];
-    countryMatches.forEach(match => {
-        const country = match.toLowerCase();
-        if (!foundCountries.has(country)) {
-            foundCountries.add(country);
-            locations.push({
-                type: 'country',
-                name: countries[country.toUpperCase()]?.name || match,
-                code: country.toUpperCase()
-            });
-        }
-    });
 
     // Find cities
     const cityMatches = content.match(cityRegex) || [];
     cityMatches.forEach(match => {
         const city = match.toLowerCase();
-        if (!foundCities.has(city) && majorCities[city]) {
+        if (!foundCities.has(city)) {
             foundCities.add(city);
             locations.push({
                 type: 'city',
                 name: match,
-                coordinates: majorCities[city]
+                coordinates: majorCities[city],
+                country: majorCities[city].country
             });
         }
     });
 
-    // Process content with enhanced styling
+    // Process markdown-style formatting
     let html = content
-        // Convert markdown-style headings
-        .replace(headingRegex, (_, level, text) => 
-            `<h${level.length}>${text}</h${level.length}>`)
-        
-        // Convert markdown-style lists
+        .replace(headingRegex, (_, level, text) => `<h${level.length}>${text}</h${level.length}>`)
         .replace(listRegex, '<li>$1</li>')
-        .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
-        
-        // Convert markdown-style links
-        .replace(linkRegex, '<a href="$2" class="external-link" target="_blank" rel="noopener noreferrer">$1</a>')
-        
-        // Convert inline code
+        .replace(linkRegex, '<a href="$2">$1</a>')
         .replace(codeRegex, '<code>$1</code>')
-        
-        // Convert bold text
         .replace(emphasisRegex, '<strong>$1</strong>')
-        
-        // Convert italic text
-        .replace(italicRegex, '<em>$1</em>')
-        
-        // Convert newlines to paragraphs
-        .split('\n\n')
-        .map(para => para.trim())
-        .filter(para => para)
-        .map(para => `<p>${para}</p>`)
-        .join('')
-        
-        // Style quotes
-        .replace(/"([^"]+)"/g, '<q class="styled-quote">$1</q>')
-        
-        // Highlight locations
-        .replace(countryRegex, match => 
-            `<span class="location-highlight country">${match}</span>`)
-        .replace(cityRegex, match => 
-            `<span class="location-highlight city">${match}</span>`)
-        
-        // Style numbers and statistics
-        .replace(/(\d+(?:\.\d+)?%)/g, '<span class="statistic">$1</span>')
-        .replace(/(\$\d+(?:\.\d+)?(?:[ ]?(?:billion|million|thousand))?)/gi, 
-            '<span class="monetary">$1</span>')
-        
-        // Style dates
-        .replace(/(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4}-\d{2}-\d{2})/g, 
-            '<span class="date">$1</span>')
-        
-        // Style organization names
-        .replace(/([A-Z][A-Za-z]+ (?:Corporation|Inc\.|Ltd\.|LLC|Group|Organization))/g, 
-            '<span class="organization">$1</span>')
-        
-        // Add paragraph spacing
-        .replace(/<\/p><p>/g, '</p>\n<p>')
-        
-        // Style bullet points
-        .replace(/•/g, '<span class="bullet-point">•</span>');
+        .replace(italicRegex, '<em>$1</em>');
 
-    return { html, locations };
+    // Wrap lists in <ul> tags
+    html = html.replace(/(<li>.*?<\/li>)+/g, match => `<ul>${match}</ul>`);
+
+    return {
+        html,
+        locations
+    };
 };
 
 export const getLocationSummary = (locations) => {
-    if (!locations || locations.length === 0) return 'Location not specified';
+    if (!locations || locations.length === 0) return '';
 
-    const summary = locations.map(loc => {
-        if (loc.type === 'country') {
-            return loc.name;
-        } else if (loc.type === 'city') {
-            return `${loc.name}${loc.coordinates ? ` (${loc.coordinates.lat.toFixed(2)}, ${loc.coordinates.lng.toFixed(2)})` : ''}`;
+    const locationStrings = locations.map(loc => {
+        if (loc.type === 'city') {
+            return `${loc.name}, ${loc.country}`;
         }
         return loc.name;
-    }).join(', ');
+    });
 
-    return summary;
+    return locationStrings.join('; ');
 };

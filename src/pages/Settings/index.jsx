@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card } from 'primereact/card'
 import { InputSwitch } from 'primereact/inputswitch'
 import { Dropdown } from 'primereact/dropdown'
@@ -10,7 +10,7 @@ import { Divider } from 'primereact/divider';
 const Settings = () => {
   document.title = "Settings | E6Intel PIMAS";
 
-  const [settings, setSettings] = React.useState({
+  const [settings, setSettings] = useState({
     notifications: {
       email: true,
       push: false,
