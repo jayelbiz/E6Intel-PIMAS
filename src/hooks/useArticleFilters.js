@@ -1,8 +1,12 @@
 import { useState, useMemo } from 'react';
+import { getCategoryHierarchy } from '@/constants/categories';
 
 export const useArticleFilters = (articles) => {
   const [filters, setFilters] = useState({
-    category: 'all',
+    category: {
+      group: 'all',
+      subcategory: 'all'
+    },
     sortBy: 'recent',
     search: ''
   });
@@ -10,8 +14,18 @@ export const useArticleFilters = (articles) => {
   const filteredArticles = useMemo(() => {
     return articles.filter(article => {
       // Category filter
-      if (filters.category !== 'all' && article.category?.toLowerCase() !== filters.category) {
-        return false;
+      if (filters.category.group !== 'all') {
+        const articleCategory = getCategoryHierarchy(article.category);
+        if (!articleCategory) return false;
+
+        if (filters.category.group !== articleCategory.group.id) {
+          return false;
+        }
+
+        if (filters.category.subcategory !== 'all' && 
+            filters.category.subcategory !== articleCategory.subcategory?.id) {
+          return false;
+        }
       }
       
       // Search filter
@@ -21,7 +35,7 @@ export const useArticleFilters = (articles) => {
       
       return true;
     });
-  }, [articles, filters.category, filters.search]);
+  }, [articles, filters.category.group, filters.category.subcategory, filters.search]);
 
   return {
     filters,

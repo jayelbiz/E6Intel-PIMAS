@@ -1,10 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Dialog } from 'primereact/dialog';
-import { ProgressSpinner } from 'primereact/progressspinner';
+import React, { useState, useCallback } from 'react';
 import { DataView } from 'primereact/dataview';
-import { Button } from 'primereact/button';
 import { useNews } from '@/contexts/NewsContext';
-import { processContent } from '@/utils/contentProcessor';
 import ArticleCard from '@/components/News/ArticleCard';
 import ArticleContent from '@/components/News/ArticleContent';
 import NewsHeader from '@/components/News/NewsHeader';
@@ -15,7 +11,7 @@ import '@/styles/news.scss';
 
 const LoadingState = () => (
   <div className="card flex justify-content-center align-items-center min-h-screen" data-testid="loading-state">
-    <ProgressSpinner />
+    <i className="pi pi-spin pi-spinner text-4xl"></i>
   </div>
 );
 
@@ -23,7 +19,10 @@ const ErrorState = ({ message, onRetry }) => (
   <div className="card flex flex-column justify-content-center align-items-center min-h-screen gap-4" data-testid="error-state">
     <i className="pi pi-exclamation-circle text-6xl text-red-500"></i>
     <h2 className="text-xl font-bold text-900">{message}</h2>
-    <Button label="Retry" icon="pi pi-refresh" onClick={onRetry} />
+    <button className="p-button" onClick={onRetry}>
+      <i className="pi pi-refresh mr-2"></i>
+      Retry
+    </button>
   </div>
 );
 
@@ -37,7 +36,6 @@ const News = () => {
   
   const { articles, loading, categories, error, refetch } = useNews();
   const [selectedArticle, setSelectedArticle] = useState(null);
-  const [processedContent, setProcessedContent] = useState({ html: '', locations: [] });
   const [viewMode, setViewMode] = useState('grid');
   
   const { filters, setFilters, filteredArticles } = useArticleFilters(articles);
@@ -46,13 +44,6 @@ const News = () => {
     { icon: 'pi pi-th-large', value: 'grid' },
     { icon: 'pi pi-list', value: 'list' }
   ];
-
-  useEffect(() => {
-    if (selectedArticle) {
-      const { html, locations } = processContent(selectedArticle.content);
-      setProcessedContent({ html, locations });
-    }
-  }, [selectedArticle]);
 
   const getSentimentColor = useCallback((sentiment) => {
     const colors = {
@@ -127,19 +118,13 @@ const News = () => {
           data-testid="articles-grid"
         />
 
-        <Dialog
-          visible={!!selectedArticle}
-          onHide={() => setSelectedArticle(null)}
-          header={selectedArticle?.title}
-          style={{ width: '90vw', maxWidth: '900px' }}
-          maximizable
-          modal
-          data-testid="article-dialog"
-        >
-          {selectedArticle && (
-            <ArticleContent content={processedContent.html} />
-          )}
-        </Dialog>
+        {selectedArticle && (
+          <ArticleContent 
+            article={selectedArticle}
+            visible={!!selectedArticle}
+            onHide={() => setSelectedArticle(null)}
+          />
+        )}
       </div>
     </ErrorBoundary>
   );

@@ -73,21 +73,80 @@ export const getLocationSummary = (locations) => {
     return locationStrings.join('; ');
 };
 
-export const calculateReadingTime = (content) => {
-  if (!content) return 0;
+/**
+ * Utility functions for processing content
+ */
+
+/**
+ * Format a date string into a readable format
+ * @param {string} dateString - ISO date string
+ * @returns {string} Formatted date string
+ */
+export const formatDate = (dateString) => {
+  if (!dateString) return '';
   
-  // Average reading speed (words per minute)
-  const wordsPerMinute = 200;
-  
-  // Count words (split by spaces and filter out empty strings)
-  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
-  
-  // Calculate reading time in minutes
-  const readingTime = Math.ceil(wordCount / wordsPerMinute);
-  
-  return readingTime;
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
+
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', options);
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
 };
 
+/**
+ * Calculate estimated reading time for content
+ * @param {string} content - Article content
+ * @returns {number} Estimated reading time in minutes
+ */
+export const calculateReadingTime = (content) => {
+  if (!content) return 1;
+  
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  const readingTime = Math.ceil(words / wordsPerMinute);
+  
+  return Math.max(1, readingTime);
+};
+
+/**
+ * Truncate text to a specified length
+ * @param {string} text - Text to truncate
+ * @param {number} maxLength - Maximum length
+ * @returns {string} Truncated text
+ */
+export const truncateText = (text, maxLength = 100) => {
+  if (!text || text.length <= maxLength) return text;
+  
+  return text.slice(0, maxLength).trim() + '...';
+};
+
+/**
+ * Clean HTML content from text
+ * @param {string} html - HTML content
+ * @returns {string} Clean text
+ */
+export const stripHtml = (html) => {
+  if (!html) return '';
+  
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+};
+
+/**
+ * Format a short date string
+ * @param {string} dateString - ISO date string
+ * @returns {string} Formatted short date string
+ */
 export const formatShortDate = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();

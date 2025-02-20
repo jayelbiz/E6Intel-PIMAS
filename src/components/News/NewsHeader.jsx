@@ -1,19 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
 import { SelectButton } from 'primereact/selectbutton';
+import CategoryFilter from './CategoryFilter';
 
 const NewsHeader = ({ 
   filters, 
   setFilters, 
   viewMode, 
   setViewMode, 
-  categories,
   viewOptions 
 }) => {
   const viewOptionTemplate = (option) => {
     return <i className={option.icon} />;
+  };
+
+  const handleCategoryChange = (category) => {
+    setFilters(prev => ({
+      ...prev,
+      category
+    }));
   };
 
   return (
@@ -24,24 +30,14 @@ const NewsHeader = ({
           <InputText
             placeholder="Search articles..."
             value={filters.search}
-            onChange={(e) => setFilters({...filters, search: e.target.value})}
+            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
             className="w-full"
             data-testid="search-input"
           />
         </span>
-        <Dropdown
-          value={filters.category}
-          options={[
-            { label: 'All Categories', value: 'all' },
-            ...categories.map(category => ({ 
-              label: category, 
-              value: category.toLowerCase() 
-            }))
-          ]}
-          onChange={(e) => setFilters({...filters, category: e.value})}
-          placeholder="Select Category"
-          className="w-10rem"
-          data-testid="category-dropdown"
+        <CategoryFilter
+          selectedCategory={filters.category}
+          onCategoryChange={handleCategoryChange}
         />
       </div>
       <SelectButton
@@ -58,14 +54,16 @@ const NewsHeader = ({
 
 NewsHeader.propTypes = {
   filters: PropTypes.shape({
-    category: PropTypes.string.isRequired,
+    category: PropTypes.shape({
+      group: PropTypes.string.isRequired,
+      subcategory: PropTypes.string.isRequired
+    }).isRequired,
     search: PropTypes.string.isRequired,
     sortBy: PropTypes.string.isRequired
   }).isRequired,
   setFilters: PropTypes.func.isRequired,
   viewMode: PropTypes.oneOf(['grid', 'list']).isRequired,
   setViewMode: PropTypes.func.isRequired,
-  categories: PropTypes.arrayOf(PropTypes.string).isRequired,
   viewOptions: PropTypes.arrayOf(PropTypes.shape({
     icon: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired
