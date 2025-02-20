@@ -4,6 +4,7 @@ import { Dialog } from 'primereact/dialog';
 import { getCategoryHierarchy } from '@/constants/categories';
 import { calculateReadingTime, stripHtml } from '@/utils/contentProcessor';
 import { analyzeText } from '@/utils/gematriaAnalyzer';
+import { detectWarfareIndicators } from '@/utils/spiritualWarfareAnalyzer';
 
 import ArticleHeader from './ArticleContent/ArticleHeader';
 import ArticleFooter from './ArticleContent/ArticleFooter';
@@ -31,18 +32,25 @@ const ArticleContent = ({ article, visible, onHide }) => {
 
   const paragraphs = processContent(article.content);
 
-  // Process article content for Gematria analysis
-  const gematriaResults = useMemo(() => {
-    if (!article) return null;
-    const textToAnalyze = `${article.title} ${article.description || ''} ${article.content || ''}`;
-    const analysis = analyzeText(textToAnalyze);
+  // Process article content for analysis
+  const analysisResults = useMemo(() => {
+    if (!article) return { gematria: null, spiritualWarfare: null };
     
-    // Add spiritual interpretation based on total value and key terms
-    const interpretation = `The total Gematria value of ${analysis.totalValue} suggests significant spiritual implications. Key terms identified show connections to biblical themes of ${analysis.keyTerms.slice(0, 3).map(term => term.biblicalSignificance[0].meaning).join(', ')}. Consider these numerical patterns when interpreting the broader spiritual context of this article.`;
+    const textToAnalyze = `${article.title} ${article.description || ''} ${article.content || ''}`;
+    
+    // Gematria analysis
+    const gematriaAnalysis = analyzeText(textToAnalyze);
+    const gematriaResults = {
+      ...gematriaAnalysis,
+      interpretation: `The total Gematria value of ${gematriaAnalysis.totalValue} suggests significant spiritual implications. Key terms identified show connections to biblical themes of ${gematriaAnalysis.keyTerms.slice(0, 3).map(term => term.biblicalSignificance[0].meaning).join(', ')}. Consider these numerical patterns when interpreting the broader spiritual context of this article.`
+    };
+
+    // Spiritual warfare analysis
+    const warfareResults = detectWarfareIndicators(textToAnalyze);
     
     return {
-      ...analysis,
-      interpretation
+      gematria: gematriaResults,
+      spiritualWarfare: warfareResults
     };
   }, [article]);
 
@@ -160,7 +168,8 @@ const ArticleContent = ({ article, visible, onHide }) => {
       }
     ],
     summary: 'This article discusses economic policy changes with a focus on their potential impact on market stability. While it presents some valid concerns, the analysis reveals emotional manipulation tactics and potential bias in its presentation. The source has moderate credibility, but there are notable inconsistencies with other coverage of this topic. Exercise critical thinking when considering the conclusions drawn.',
-    gematria: gematriaResults
+    gematria: analysisResults.gematria,
+    spiritualWarfare: analysisResults.spiritualWarfare
   };
 
   const handleSave = useCallback(() => {

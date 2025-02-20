@@ -29,7 +29,8 @@ const AiInsights = ({ visible, analysis }) => {
     summary,
     trends,
     timeline,
-    gematria
+    gematria,
+    spiritualWarfare
   } = analysis;
 
   // Chart data for sentiment analysis
@@ -200,6 +201,114 @@ const AiInsights = ({ visible, analysis }) => {
     );
   };
 
+  const renderSpiritualWarfareAnalysis = () => {
+    const { spiritualWarfare } = analysis;
+    
+    const renderClassification = (classification) => (
+      <div key={classification.type} className="col-12 mb-4">
+        <div className="flex align-items-center gap-2 mb-2">
+          <i className="pi pi-exclamation-triangle" style={{ color: 'var(--yellow-500)' }}></i>
+          <span className="font-medium">{classification.name}</span>
+          <Tag severity="warning" value={classification.biblicalReference} />
+        </div>
+        
+        <p className="text-sm text-500 mb-3">{classification.description}</p>
+        
+        {classification.matches.keywords.length > 0 && (
+          <div className="mb-2">
+            <span className="text-sm font-medium">Keywords Found:</span>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {classification.matches.keywords.map(keyword => (
+                <Tag key={keyword} value={keyword} severity="danger" />
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {classification.matches.patterns.length > 0 && (
+          <div>
+            <span className="text-sm font-medium">Patterns Detected:</span>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {classification.matches.patterns.map(pattern => (
+                <Tag key={pattern} value={pattern} severity="warning" />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+
+    const renderOccultReference = (reference) => (
+      <div key={`${reference.type}-${reference.name}`} 
+           className="flex align-items-center gap-2 mb-2">
+        <i className="pi pi-eye" style={{ color: 'var(--purple-500)' }}></i>
+        <span className="font-medium capitalize">{reference.name}</span>
+        <span className="text-500">via reference to "{reference.reference}"</span>
+      </div>
+    );
+
+    return (
+      <div className="grid">
+        {/* Severity Indicator */}
+        <div className="col-12">
+          <div className="flex justify-content-between align-items-center mb-4">
+            <h3 className="text-xl font-medium m-0">Spiritual Warfare Analysis</h3>
+            <Tag 
+              value={`Severity: ${spiritualWarfare.severity}/100`} 
+              severity={
+                spiritualWarfare.severity < 30 ? 'info' :
+                spiritualWarfare.severity < 60 ? 'warning' : 'danger'
+              }
+              className="text-lg"
+            />
+          </div>
+        </div>
+
+        {/* Main Interpretation */}
+        <div className="col-12">
+          <Message severity="warn" className="w-full mb-4">
+            <div className="flex flex-column gap-2">
+              <span className="font-medium">Analysis Summary</span>
+              <p className="m-0 line-height-3">{spiritualWarfare.interpretation}</p>
+            </div>
+          </Message>
+        </div>
+
+        {/* Classifications */}
+        {spiritualWarfare.classifications.length > 0 && (
+          <>
+            <div className="col-12">
+              <h3 className="text-lg font-medium mb-3">Detected Strategies</h3>
+            </div>
+            {spiritualWarfare.classifications.map(renderClassification)}
+          </>
+        )}
+
+        {/* Occult References */}
+        {spiritualWarfare.occultReferences.length > 0 && (
+          <div className="col-12">
+            <h3 className="text-lg font-medium mb-3">Occult References</h3>
+            <div className="surface-ground border-round p-3">
+              {spiritualWarfare.occultReferences.map(renderOccultReference)}
+            </div>
+          </div>
+        )}
+
+        {/* Ritualistic Language */}
+        {spiritualWarfare.ritualisticLanguage.length > 0 && (
+          <div className="col-12">
+            <h3 className="text-lg font-medium mb-3">Ritualistic Language</h3>
+            <div className="flex flex-wrap gap-2">
+              {spiritualWarfare.ritualisticLanguage.map(pattern => (
+                <Tag key={pattern} value={pattern} severity="info" />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div id="ai-analysis-section" className="ai-insights mt-4">
       <Divider align="center">
@@ -347,6 +456,11 @@ const AiInsights = ({ visible, analysis }) => {
         <TabPanel header="Gematria" leftIcon="pi pi-star mr-2">
           {renderGematriaAnalysis()}
         </TabPanel>
+
+        {/* Spiritual Warfare Analysis */}
+        <TabPanel header="Warfare" leftIcon="pi pi-shield mr-2">
+          {renderSpiritualWarfareAnalysis()}
+        </TabPanel>
       </TabView>
     </div>
   );
@@ -414,6 +528,26 @@ AiInsights.propTypes = {
         })).isRequired
       })).isRequired,
       totalValue: PropTypes.number.isRequired,
+      interpretation: PropTypes.string.isRequired
+    }).isRequired,
+    spiritualWarfare: PropTypes.shape({
+      classifications: PropTypes.arrayOf(PropTypes.shape({
+        type: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        description: PropTypes.string.isRequired,
+        biblicalReference: PropTypes.string.isRequired,
+        matches: PropTypes.shape({
+          keywords: PropTypes.arrayOf(PropTypes.string).isRequired,
+          patterns: PropTypes.arrayOf(PropTypes.string).isRequired
+        }).isRequired
+      })).isRequired,
+      occultReferences: PropTypes.arrayOf(PropTypes.shape({
+        type: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        reference: PropTypes.string.isRequired
+      })).isRequired,
+      ritualisticLanguage: PropTypes.arrayOf(PropTypes.string).isRequired,
+      severity: PropTypes.number.isRequired,
       interpretation: PropTypes.string.isRequired
     }).isRequired
   }).isRequired
