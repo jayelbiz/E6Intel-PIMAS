@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { RecoilRoot } from 'recoil'
+import NewsProvider from './contexts/NewsContext'
 
 // Pages
 import News from './pages/News'
@@ -9,12 +10,14 @@ import MainLayout from './layouts/MainLayout'
 
 const App = () => (
   <RecoilRoot>
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route index element={<News />} />
-        <Route path="/settings" element={<Settings />} />
-      </Route>
-    </Routes>
+    <NewsProvider>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route index element={<News />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Routes>
+    </NewsProvider>
   </RecoilRoot>
 )
 

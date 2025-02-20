@@ -17,10 +17,29 @@ const LoadingState = () => (
   </div>
 );
 
+const ErrorState = ({ message, onRetry }) => (
+  <div className="card flex flex-column justify-content-center align-items-center min-h-screen gap-4">
+    <i className="pi pi-exclamation-circle text-6xl text-red-500"></i>
+    <h2 className="text-xl font-bold text-900">{message}</h2>
+    <Button label="Retry" icon="pi pi-refresh" onClick={onRetry} />
+  </div>
+);
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+};
+
 const News = () => {
   document.title = "News | E6Intel PIMAS";
   
-  const { articles, loading, categories, error } = useNews();
+  const { articles, loading, categories, error, refetch } = useNews();
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [processedContent, setProcessedContent] = useState({ html: '', locations: [] });
   const [filters, setFilters] = useState({
@@ -36,67 +55,6 @@ const News = () => {
     { label: 'Event Severity', value: 'severity' }
   ];
 
-  const renderHeader = () => {
-    return (
-      <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-        <h1 className="text-3xl font-bold mb-4 md:mb-0">News Feed</h1>
-        <div className="flex flex-column md:flex-row gap-3">
-          <span className="p-input-icon-left">
-            <i className="pi pi-search" />
-            <InputText 
-              placeholder="Search" 
-              value={filters.search}
-              onChange={(e) => setFilters({...filters, search: e.target.value})}
-            />
-          </span>
-          <Dropdown
-            value={filters.category}
-            options={[
-              { label: 'All Categories', value: 'all' },
-              ...categories.map(category => ({ label: category, value: category.toLowerCase() }))
-            ]}
-            onChange={(e) => setFilters({...filters, category: e.value})}
-            placeholder="Select Category"
-          />
-          <Dropdown
-            value={filters.sortBy}
-            options={sortOptions}
-            onChange={(e) => setFilters({...filters, sortBy: e.value})}
-            placeholder="Sort by"
-          />
-        </div>
-      </div>
-    );
-  };
-
-  const itemTemplate = (article) => {
-    return (
-      <div className="col-12 md:col-6 lg:col-4 p-2">
-        <Card className="h-full surface-card shadow-2">
-          <div className="flex flex-column gap-3">
-            <div className="text-xl font-bold text-900">{article.title}</div>
-            <div className="text-500">{article.summary}</div>
-            <div className="flex align-items-center gap-2">
-              <i className="pi pi-calendar text-500"></i>
-              <span className="text-500">{new Date(article.publishedAt).toLocaleDateString()}</span>
-            </div>
-            <div className="flex justify-content-between align-items-center">
-              <Button 
-                label="Read More" 
-                className="p-button-text" 
-                onClick={() => setSelectedArticle(article)}
-              />
-              <Button 
-                icon="pi pi-bookmark" 
-                className="p-button-rounded p-button-text"
-              />
-            </div>
-          </div>
-        </Card>
-      </div>
-    );
-  };
-
   useEffect(() => {
     if (selectedArticle) {
       const { html, locations } = processContent(selectedArticle.content);
@@ -105,7 +63,98 @@ const News = () => {
   }, [selectedArticle]);
 
   if (loading) return <LoadingState />;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (error) return <ErrorState message={error} onRetry={refetch} />;
+
+  const renderHeader = () => (
+    <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+      <h1 className="text-3xl font-bold mb-4 md:mb-0">News Feed</h1>
+      <div className="flex flex-column md:flex-row gap-3">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText 
+            placeholder="Search" 
+            value={filters.search}
+            onChange={(e) => setFilters({...filters, search: e.target.value})}
+          />
+        </span>
+        <Dropdown
+          value={filters.category}
+          options={[
+            { label: 'All Categories', value: 'all' },
+            ...categories.map(category => ({ label: category, value: category.toLowerCase() }))
+          ]}
+          onChange={(e) => setFilters({...filters, category: e.value})}
+          placeholder="Select Category"
+        />
+        <Dropdown
+          value={filters.sortBy}
+          options={sortOptions}
+          onChange={(e) => setFilters({...filters, sortBy: e.value})}
+          placeholder="Sort by"
+        />
+      </div>
+    </div>
+  );
+
+  const getSentimentColor = (sentiment) => {
+    const colors = {
+      positive: 'success',
+      negative: 'danger',
+      neutral: 'info'
+    };
+    return colors[sentiment] || 'info';
+  };
+
+  const itemTemplate = (article) => (
+    <div className="col-12 md:col-6 lg:col-4 p-2">
+      <Card className="h-full surface-card shadow-2">
+        <div className="flex flex-column gap-3">
+          {article.image_url && (
+            <img 
+              src={article.image_url} 
+              alt={article.title}
+              className="w-full border-round"
+              style={{ maxHeight: '200px', objectFit: 'cover' }}
+              onError={(e) => e.target.style.display = 'none'}
+            />
+          )}
+          <div className="text-xl font-bold text-900">{article.title}</div>
+          <div className="text-500">{article.summary}</div>
+          
+          <div className="flex gap-2 flex-wrap">
+            <Badge value={article.category} severity="info" />
+            <Badge value={article.sentiment} severity={getSentimentColor(article.sentiment)} />
+            {article.themes?.map((theme, index) => (
+              <Badge key={index} value={theme} severity="warning" />
+            ))}
+          </div>
+
+          <div className="flex flex-column gap-2 text-sm">
+            <div className="flex align-items-center gap-2">
+              <i className="pi pi-calendar text-500"></i>
+              <span className="text-500">{formatDate(article.published_at)}</span>
+            </div>
+            <div className="flex align-items-center gap-2">
+              <i className="pi pi-globe text-500"></i>
+              <span className="text-500">{article.source}</span>
+            </div>
+          </div>
+
+          <div className="flex justify-content-between align-items-center">
+            <Button 
+              label="Read More" 
+              className="p-button-text" 
+              onClick={() => setSelectedArticle(article)}
+            />
+            <Button 
+              icon="pi pi-bookmark" 
+              className="p-button-rounded p-button-text"
+            />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
 
   const filteredArticles = articles.filter(article => {
     const matchesCategory = filters.category === 'all' || 
@@ -119,7 +168,7 @@ const News = () => {
   }).sort((a, b) => {
     switch (filters.sortBy) {
       case 'date':
-        return new Date(b.publishedAt) - new Date(a.publishedAt);
+        return new Date(b.published_at) - new Date(a.published_at);
       case 'reliability':
         return (b.reliabilityScore || 0) - (a.reliabilityScore || 0);
       case 'sentiment':
@@ -133,53 +182,70 @@ const News = () => {
   });
 
   return (
-    <div className="flex flex-column gap-4">
-      {renderHeader()}
+    <div className="news-container">
       <DataView
         value={filteredArticles}
         itemTemplate={itemTemplate}
+        header={renderHeader()}
+        paginator
+        rows={9}
         layout="grid"
-        loading={loading}
-        emptyMessage="No articles found"
       />
+      
       <Dialog
         visible={!!selectedArticle}
         onHide={() => setSelectedArticle(null)}
         header={selectedArticle?.title}
-        style={{ width: '90vw', maxWidth: '800px' }}
+        style={{ width: '90vw', maxWidth: '1200px' }}
         maximizable
       >
         {selectedArticle && (
           <div className="article-content">
-            <div className="flex gap-3 mb-4">
-              <Badge value={selectedArticle.category} severity="info" />
-              <span className="text-sm text-500">
-                {new Date(selectedArticle.publishedAt).toLocaleDateString()}
-              </span>
-              <span className="text-sm text-600">{selectedArticle.source}</span>
+            <div className="flex flex-column gap-4 mb-4">
+              <div className="flex gap-2 flex-wrap">
+                <Badge value={selectedArticle.category} severity="info" />
+                <Badge value={selectedArticle.sentiment} severity={getSentimentColor(selectedArticle.sentiment)} />
+                {selectedArticle.themes?.map((theme, index) => (
+                  <Badge key={index} value={theme} severity="warning" />
+                ))}
+              </div>
+
+              <div className="flex flex-column gap-2 text-sm">
+                <div className="flex align-items-center gap-2">
+                  <i className="pi pi-calendar text-500"></i>
+                  <span className="text-500">{formatDate(selectedArticle.published_at)}</span>
+                </div>
+                <div className="flex align-items-center gap-2">
+                  <i className="pi pi-globe text-500"></i>
+                  <span className="text-500">{selectedArticle.source}</span>
+                </div>
+                <div className="flex align-items-center gap-2">
+                  <i className="pi pi-external-link text-500"></i>
+                  <a 
+                    href={selectedArticle.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    View Original Article
+                  </a>
+                </div>
+              </div>
             </div>
+
+            <div dangerouslySetInnerHTML={{ __html: processedContent.html }} />
+            
             {processedContent.locations.length > 0 && (
-              <div className="mb-4 p-3 surface-ground border-round">
-                <strong>Locations:</strong> {getLocationSummary(processedContent.locations)}
+              <div className="locations-section mt-4 p-3 surface-ground border-round">
+                <h3 className="text-xl mb-2">Mentioned Locations</h3>
+                <p>{getLocationSummary(processedContent.locations)}</p>
               </div>
             )}
-            <div dangerouslySetInnerHTML={{ __html: processedContent.html }} />
           </div>
         )}
       </Dialog>
     </div>
   );
-};
-
-const getCategorySeverity = (category) => {
-  const severityMap = {
-    'Geopolitical': 'info',
-    'Security Alerts': 'danger',
-    'Natural Disasters': 'warning',
-    'Social Movements': 'success',
-    'Financial & Economic': 'info'
-  };
-  return severityMap[category] || 'info';
 };
 
 export default News;

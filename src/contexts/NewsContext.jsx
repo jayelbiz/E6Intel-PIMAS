@@ -17,29 +17,29 @@ export const NewsProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            const [articlesRes, categoriesRes] = await Promise.all([
+                newsService.getArticles(),
+                newsService.getCategories()
+            ]);
+
+            setArticles(articlesRes?.data || []);
+            setCategories(categoriesRes?.data || []);
+        } catch (err) {
+            console.error('Error fetching news data:', err);
+            setError(err.message || 'Failed to fetch news data');
+            setArticles([]);
+            setCategories([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const [articlesRes, categoriesRes] = await Promise.all([
-                    newsService.getArticles(),
-                    newsService.getCategories()
-                ]);
-
-                if (articlesRes.error) throw new Error(articlesRes.error);
-                if (categoriesRes.error) throw new Error(categoriesRes.error);
-
-                setArticles(articlesRes.data || []);
-                setCategories(categoriesRes.data || []);
-                setError(null);
-            } catch (err) {
-                console.error('Error fetching news data:', err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchData();
     }, []);
 
@@ -47,7 +47,8 @@ export const NewsProvider = ({ children }) => {
         articles,
         categories,
         loading,
-        error
+        error,
+        refetch: fetchData
     };
 
     return (
