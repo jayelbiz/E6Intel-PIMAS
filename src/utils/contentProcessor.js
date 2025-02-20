@@ -72,3 +72,45 @@ export const getLocationSummary = (locations) => {
 
     return locationStrings.join('; ');
 };
+
+export const calculateReadingTime = (content) => {
+  if (!content) return 0;
+  
+  // Average reading speed (words per minute)
+  const wordsPerMinute = 200;
+  
+  // Count words (split by spaces and filter out empty strings)
+  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+  
+  // Calculate reading time in minutes
+  const readingTime = Math.ceil(wordCount / wordsPerMinute);
+  
+  return readingTime;
+};
+
+export const formatShortDate = (dateString) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  // If less than 60 minutes ago
+  if (diffMins < 60) {
+    return `${diffMins}m ago`;
+  }
+  // If less than 24 hours ago
+  if (diffHours < 24) {
+    return `${diffHours}h ago`;
+  }
+  // If less than 7 days ago
+  if (diffDays < 7) {
+    return `${diffDays}d ago`;
+  }
+  // Otherwise show short date
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric'
+  });
+};

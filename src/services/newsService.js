@@ -121,6 +121,8 @@ class NewsService {
             image_url: article.urlToImage,
             source: article.source.name,
             url: article.url,
+            author: article.author || 'Unknown',
+            section: article.source.category || this.categorizeArticle(article.title + ' ' + article.description),
             sentiment: this.analyzeSentiment(article.title + ' ' + article.description),
             bias: this.analyzeBias(article.content || ''),
             themes: this.extractThemes(article.title + ' ' + article.description)
@@ -138,6 +140,8 @@ class NewsService {
             image_url: article.fields?.thumbnail || '',
             source: 'The Guardian',
             url: article.webUrl,
+            author: article.fields?.byline || 'Unknown',
+            section: article.sectionName || this.categorizeArticle(article.webTitle),
             sentiment: this.analyzeSentiment(article.webTitle + ' ' + (article.fields?.trailText || '')),
             bias: this.analyzeBias(article.fields?.bodyText || ''),
             themes: this.extractThemes(article.webTitle + ' ' + (article.fields?.trailText || ''))
