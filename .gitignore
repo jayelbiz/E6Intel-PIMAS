@@ -42,3 +42,6 @@ src/backbone/requirements/prompt/*
 *.tmp
 *.temp
 .cache
+
+# Local Netlify folder
+.netlify

@@ -25,6 +25,39 @@
     transition-timing-function: var(--transition-timing);
 }
 
+/* PrimeReact specific transitions */
+.transition-all {
+    transition-property: all;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+}
+
+.transition-shadow {
+    transition-property: box-shadow;
+}
+
+.transition-width {
+    transition-property: width;
+}
+
+.transition-height {
+    transition-property: height;
+}
+
+.transition-duration-200 {
+    transition-duration: 200ms;
+}
+
+.transition-duration-300 {
+    transition-duration: 300ms;
+}
+
+.transition-duration-500 {
+    transition-duration: 500ms;
+}
+
 /* Fade animations */
 .fade-enter {
     opacity: 0;
@@ -132,6 +165,78 @@
                 opacity var(--modal-transition) var(--transition-timing);
 }
 
+/* Animate.css-inspired animations */
+.animate__animated {
+    animation-duration: var(--modal-transition);
+    animation-fill-mode: both;
+}
+
+.animate__faster {
+    animation-duration: 300ms;
+}
+
+.animate__fadeIn {
+    animation-name: fadeIn;
+}
+
+.animate__fadeOut {
+    animation-name: fadeOut;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+}
+
+/* Custom modal animations */
+.animate-modal {
+    animation: modalEnter 300ms ease-out;
+}
+
+.animate-modal-content {
+    animation: contentFadeIn 400ms ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Card hover effects */
 .news-card {
     transition: transform var(--transition-duration) var(--transition-timing),
@@ -141,6 +246,35 @@
 .news-card:hover {
     transform: var(--hover-lift);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Form element transitions */
+.form-element-focus {
+    transition: width var(--transition-duration) var(--transition-timing),
+                box-shadow var(--transition-duration) var(--transition-timing),
+                border-color var(--transition-duration) var(--transition-timing);
+}
+
+.search-expand {
+    width: 100%;
+    transition: width var(--transition-duration) var(--transition-timing);
+}
+
+.search-expand:focus {
+    width: 120%;
+}
+
+/* Filter transitions */
+.filter-item {
+    transition: background-color var(--transition-duration) var(--transition-timing),
+                color var(--transition-duration) var(--transition-timing),
+                border-color var(--transition-duration) var(--transition-timing),
+                box-shadow var(--transition-duration) var(--transition-timing);
+}
+
+.filter-item:hover {
+    background-color: var(--surface-hover);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 /* Theme transitions */

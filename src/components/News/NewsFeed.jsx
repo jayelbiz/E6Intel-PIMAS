@@ -10,6 +10,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { Dropdown } from 'primereact/dropdown';
 import { ToggleButton } from 'primereact/togglebutton';
 import { Panel } from 'primereact/panel';
+import '@/styles/animations.css';
 
 const NewsFeed = () => {
     const [articles, setArticles] = useState([]);
@@ -114,6 +115,7 @@ const NewsFeed = () => {
                 offLabel="Guardian"
                 onIcon="pi pi-check"
                 offIcon="pi pi-times"
+                className="shadow-1 hover:shadow-2 transition-all transition-duration-200"
             />
             <ToggleButton
                 checked={enabledSources.newsapi}
@@ -122,6 +124,7 @@ const NewsFeed = () => {
                 offLabel="NewsAPI"
                 onIcon="pi pi-check"
                 offIcon="pi pi-times"
+                className="shadow-1 hover:shadow-2 transition-all transition-duration-200"
             />
             <ToggleButton
                 checked={enabledSources.gnews}
@@ -130,6 +133,7 @@ const NewsFeed = () => {
                 offLabel="GNews"
                 onIcon="pi pi-check"
                 offIcon="pi pi-times"
+                className="shadow-1 hover:shadow-2 transition-all transition-duration-200"
             />
             <ToggleButton
                 checked={enabledSources.mediastack}
@@ -138,6 +142,7 @@ const NewsFeed = () => {
                 offLabel="Mediastack"
                 onIcon="pi pi-check"
                 offIcon="pi pi-times"
+                className="shadow-1 hover:shadow-2 transition-all transition-duration-200"
             />
         </div>
     );
@@ -148,37 +153,43 @@ const NewsFeed = () => {
             toggleable 
             collapsed={!advancedFiltersVisible}
             onToggle={(e) => setAdvancedFiltersVisible(e.value)}
-            className="mb-4"
+            className="mb-4 shadow-2"
+            pt={{
+                toggler: { className: 'hover:bg-primary-50 transition-colors transition-duration-200' },
+                content: { className: 'p-3' }
+            }}
         >
             <div className="grid">
                 <div className="col-12 md:col-6 lg:col-3">
-                    <label className="block mb-2">Countries</label>
+                    <label className="block mb-2 font-medium text-700">Countries</label>
                     <MultiSelect
                         value={mediastackOptions.countries}
                         options={mediastackCountries}
                         onChange={(e) => setMediastackOptions(prev => ({ ...prev, countries: e.value }))}
                         placeholder="Select Countries"
-                        className="w-full"
+                        className="w-full shadow-1 hover:shadow-2 transition-all transition-duration-200"
+                        display="chip"
                     />
                 </div>
                 <div className="col-12 md:col-6 lg:col-3">
-                    <label className="block mb-2">Categories</label>
+                    <label className="block mb-2 font-medium text-700">Categories</label>
                     <MultiSelect
                         value={mediastackOptions.categories}
                         options={mediastackCategories}
                         onChange={(e) => setMediastackOptions(prev => ({ ...prev, categories: e.value }))}
                         placeholder="Select Categories"
-                        className="w-full"
+                        className="w-full shadow-1 hover:shadow-2 transition-all transition-duration-200"
+                        display="chip"
                     />
                 </div>
                 <div className="col-12 md:col-6 lg:col-3">
-                    <label className="block mb-2">Sort Order</label>
+                    <label className="block mb-2 font-medium text-700">Sort Order</label>
                     <Dropdown
                         value={mediastackOptions.sort}
                         options={sortOptions}
                         onChange={(e) => setMediastackOptions(prev => ({ ...prev, sort: e.value }))}
                         placeholder="Select Sort Order"
-                        className="w-full"
+                        className="w-full shadow-1 hover:shadow-2 transition-all transition-duration-200"
                     />
                 </div>
             </div>
@@ -196,21 +207,22 @@ const NewsFeed = () => {
     return (
         <div className="p-4">
             {/* Search and Filter Section */}
-            <div className="mb-4">
+            <div className="mb-5 surface-card p-4 border-round shadow-2">
                 <form onSubmit={handleSearch} className="flex flex-column md:flex-row gap-3 mb-4">
-                    <span className="p-input-icon-left flex-1">
+                    <span className="p-input-icon-left flex-1 w-full">
                         <i className="pi pi-search" />
                         <InputText
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search news..."
-                            className="w-full"
+                            className="w-full shadow-1 hover:shadow-2 transition-all transition-duration-200"
                         />
                     </span>
                     <Button 
                         type="submit" 
                         label="Search"
                         icon="pi pi-search"
+                        className="shadow-1 hover:shadow-3 transition-all transition-duration-200"
                     />
                 </form>
                 
@@ -222,7 +234,7 @@ const NewsFeed = () => {
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.value)}
                     options={categories}
-                    className="flex flex-wrap gap-2"
+                    className="flex flex-wrap gap-2 shadow-1 hover:shadow-2 transition-all transition-duration-200"
                 />
             </div>
 
@@ -238,9 +250,9 @@ const NewsFeed = () => {
                 ))}
                 
                 {articles.length === 0 && (
-                    <div className="col-12 text-center p-5">
-                        <i className="pi pi-info-circle text-4xl mb-3"></i>
-                        <p className="text-xl">No articles found. Try adjusting your filters or search query.</p>
+                    <div className="col-12 text-center p-5 surface-card border-round shadow-2">
+                        <i className="pi pi-info-circle text-4xl mb-3 text-primary"></i>
+                        <p className="text-xl font-medium">No articles found. Try adjusting your filters or search query.</p>
                     </div>
                 )}
             </div>

@@ -4,6 +4,7 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Badge } from 'primereact/badge';
 import { calculateReadingTime, formatShortDate } from '@/utils/contentProcessor';
+import '@/styles/animations.css';
 
 const ArticleCard = ({ article, viewMode, onArticleSelect, renderAuthor, getSentimentColor }) => {
   const readingTime = calculateReadingTime(article.content);
@@ -16,13 +17,16 @@ const ArticleCard = ({ article, viewMode, onArticleSelect, renderAuthor, getSent
   if (viewMode === 'list') {
     return (
       <div className="col-12 p-1" data-testid="article-list-item">
-        <Card className="surface-card shadow-1 list-view" pt={{ root: { className: 'p-2' }}}>
+        <Card 
+          className="surface-card shadow-2 list-view hover:shadow-4 transition-all transition-duration-300" 
+          pt={{ root: { className: 'p-3' }}}
+        >
           <div className="flex gap-3">
             {article.image_url && (
               <img 
                 src={article.image_url} 
                 alt={article.title}
-                className="border-round"
+                className="border-round-lg cursor-pointer"
                 style={{ 
                   width: '180px',
                   height: '120px',
@@ -30,14 +34,19 @@ const ArticleCard = ({ article, viewMode, onArticleSelect, renderAuthor, getSent
                 }}
                 onError={handleImageError}
                 data-testid="article-image"
+                onClick={() => onArticleSelect(article)}
               />
             )}
             <div className="flex-1 flex flex-column gap-2">
               <div className="flex-1">
-                <div className="text-xl font-bold text-900 line-clamp-1 mb-1" data-testid="article-title">
+                <div 
+                  className="text-xl font-bold text-900 line-clamp-2 mb-2 hover:text-primary transition-colors transition-duration-200 cursor-pointer" 
+                  data-testid="article-title"
+                  onClick={() => onArticleSelect(article)}
+                >
                   {article.title}
                 </div>
-                <div className="flex gap-2 text-xs text-500 mb-2" data-testid="article-metadata">
+                <div className="flex flex-wrap gap-2 text-xs text-600 mb-2" data-testid="article-metadata">
                   {renderAuthor(article.author, article.author_url)}
                   <span className="flex align-items-center gap-1">
                     <i className="pi pi-calendar"></i>
@@ -48,22 +57,28 @@ const ArticleCard = ({ article, viewMode, onArticleSelect, renderAuthor, getSent
                     {readingTime} min read
                   </span>
                 </div>
-                <div className="text-500 line-clamp-2 mb-2" data-testid="article-summary">
-                  {article.summary}
-                </div>
+                <p className="line-clamp-2 text-600 text-sm" data-testid="article-summary">
+                  {article.summary || article.content.substring(0, 200)}
+                </p>
               </div>
 
-              <div className="flex justify-content-between align-items-center">
-                <div className="flex gap-2" data-testid="article-badges">
-                  <Badge value={article.section} severity="info" size="small" />
-                  <Badge value={article.sentiment} severity={getSentimentColor(article.sentiment)} size="small" />
+              <div className="flex justify-content-between align-items-center pt-2 mt-2">
+                <div className="flex flex-wrap gap-2">
+                  {article.sentiment && (
+                    <Badge 
+                      value={article.sentiment.toUpperCase()} 
+                      severity={getSentimentColor(article.sentiment)} 
+                      className="font-semibold"
+                      data-testid="sentiment-badge"
+                    />
+                  )}
                 </div>
                 <Button 
-                  icon="pi pi-arrow-right"
-                  label="Read"
-                  className="p-button-text p-button-sm"
+                  label="Read More" 
+                  icon="pi pi-arrow-right" 
+                  className="p-button-rounded p-button-outlined p-button-sm"
                   onClick={() => onArticleSelect(article)}
-                  data-testid="read-article-button"
+                  data-testid="read-more-button"
                 />
               </div>
             </div>
@@ -74,28 +89,41 @@ const ArticleCard = ({ article, viewMode, onArticleSelect, renderAuthor, getSent
   }
 
   return (
-    <div className="col-12 md:col-6 lg:col-4 p-1" data-testid="article-grid-item">
-      <Card className="h-full surface-card shadow-1" pt={{ root: { className: 'p-2' }}}>
-        <div className="flex flex-column gap-2">
-          {article.image_url && (
-            <img 
-              src={article.image_url} 
-              alt={article.title}
-              className="w-full border-round"
-              style={{ 
-                height: '140px',
-                objectFit: 'cover',
-                marginBottom: '0.5rem'
-              }}
-              onError={handleImageError}
-              data-testid="article-image"
+    <div className="col-12 md:col-6 lg:col-4 p-2" data-testid="article-grid-item">
+      <Card 
+        className="shadow-2 border-round-xl border-none h-full grid-view hover:shadow-4 transition-all transition-duration-300"
+        pt={{ 
+          body: { className: 'p-0' },
+          content: { className: 'p-0' }
+        }}
+      >
+        <div className="image-container relative">
+          <img 
+            src={article.image_url || '/assets/images/placeholder-article.png'} 
+            alt={article.title}
+            className="w-full h-12rem border-round-top-xl object-cover cursor-pointer"
+            onError={handleImageError}
+            data-testid="article-image"
+            onClick={() => onArticleSelect(article)}
+          />
+          {article.sentiment && (
+            <Badge 
+              value={article.sentiment.toUpperCase()} 
+              severity={getSentimentColor(article.sentiment)} 
+              className="absolute top-0 right-0 m-2 font-semibold"
+              data-testid="sentiment-badge"
             />
           )}
-          <div className="text-lg font-bold text-900 line-clamp-2 mb-1" data-testid="article-title">
+        </div>
+        <div className="p-3">
+          <div 
+            className="text-xl font-bold text-900 mb-2 line-clamp-2 hover:text-primary transition-colors transition-duration-200 cursor-pointer" 
+            data-testid="article-title"
+            onClick={() => onArticleSelect(article)}
+          >
             {article.title}
           </div>
-          
-          <div className="flex gap-2 text-xs text-500 mb-2" data-testid="article-metadata">
+          <div className="flex flex-wrap gap-2 text-xs text-600 mb-3" data-testid="article-metadata">
             {renderAuthor(article.author, article.author_url)}
             <span className="flex align-items-center gap-1">
               <i className="pi pi-calendar"></i>
@@ -106,22 +134,16 @@ const ArticleCard = ({ article, viewMode, onArticleSelect, renderAuthor, getSent
               {readingTime} min read
             </span>
           </div>
-
-          <div className="text-sm text-500 line-clamp-2 mb-2" data-testid="article-summary">
-            {article.summary}
-          </div>
-          
-          <div className="flex justify-content-between align-items-center mt-auto">
-            <div className="flex gap-2" data-testid="article-badges">
-              <Badge value={article.section} severity="info" size="small" />
-              <Badge value={article.sentiment} severity={getSentimentColor(article.sentiment)} size="small" />
-            </div>
+          <p className="text-sm text-600 line-clamp-3 mb-3" data-testid="article-summary">
+            {article.summary || article.content.substring(0, 200)}
+          </p>
+          <div className="flex justify-content-end">
             <Button 
-              icon="pi pi-arrow-right"
-              label="Read"
-              className="p-button-text p-button-sm"
+              label="Read More" 
+              icon="pi pi-arrow-right" 
+              className="p-button-rounded p-button-outlined p-button-sm"
               onClick={() => onArticleSelect(article)}
-              data-testid="read-article-button"
+              data-testid="read-more-button"
             />
           </div>
         </div>
@@ -131,19 +153,7 @@ const ArticleCard = ({ article, viewMode, onArticleSelect, renderAuthor, getSent
 };
 
 ArticleCard.propTypes = {
-  article: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    summary: PropTypes.string,
-    content: PropTypes.string,
-    author: PropTypes.string,
-    author_url: PropTypes.string,
-    published_at: PropTypes.string.isRequired,
-    image_url: PropTypes.string,
-    section: PropTypes.string,
-    sentiment: PropTypes.string,
-    category: PropTypes.string
-  }).isRequired,
+  article: PropTypes.object.isRequired,
   viewMode: PropTypes.oneOf(['grid', 'list']).isRequired,
   onArticleSelect: PropTypes.func.isRequired,
   renderAuthor: PropTypes.func.isRequired,
