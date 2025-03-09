@@ -4,6 +4,9 @@
     --transition-timing: ease-out;
     --modal-transition: 300ms;
     --hover-lift: translateY(-2px);
+    --focus-mode-bg: #f8f9fa;
+    --focus-mode-text: #212529;
+    --focus-mode-transition: 400ms;
 }
 
 /* Transition base classes */
@@ -235,6 +238,62 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Focus Mode Styles */
+.focus-mode .p-dialog-content {
+    background-color: var(--focus-mode-bg);
+    transition: background-color var(--focus-mode-transition) ease;
+}
+
+.focus-mode-content {
+    color: var(--focus-mode-text);
+    max-width: 700px;
+    margin: 0 auto;
+    font-family: 'Georgia', serif;
+    transition: all var(--focus-mode-transition) ease;
+}
+
+.focus-mode .article-content {
+    color: var(--focus-mode-text);
+    text-shadow: 0 0 1px rgba(0,0,0,0.01);
+}
+
+/* Enhanced Text Contrast */
+.news-modal .article-content {
+    color: #212529;
+    text-shadow: 0 0 1px rgba(0,0,0,0.01);
+}
+
+.news-modal h2 {
+    color: #000;
+    letter-spacing: -0.01em;
+}
+
+.news-modal p {
+    margin-bottom: 1.2em;
+}
+
+/* Navigation controls */
+.article-navigation {
+    opacity: 0.8;
+    transition: opacity var(--transition-duration) var(--transition-timing);
+}
+
+.article-navigation:hover {
+    opacity: 1;
+}
+
+/* Read Full Article Button Enhancement */
+.p-button.p-button-lg {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.p-button.p-button-lg:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Card hover effects */

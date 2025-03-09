@@ -18,6 +18,7 @@ const NewsFeed = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedArticle, setSelectedArticle] = useState(null);
+    const [selectedArticleIndex, setSelectedArticleIndex] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [advancedFiltersVisible, setAdvancedFiltersVisible] = useState(false);
     
@@ -102,8 +103,22 @@ const NewsFeed = () => {
     };
 
     const handleViewDetails = (article) => {
+        const index = articles.findIndex(a => a.id === article.id);
+        setSelectedArticleIndex(index !== -1 ? index : 0);
         setSelectedArticle(article);
         setModalVisible(true);
+    };
+
+    const handlePreviousArticle = () => {
+        const newIndex = selectedArticleIndex > 0 ? selectedArticleIndex - 1 : articles.length - 1;
+        setSelectedArticleIndex(newIndex);
+        setSelectedArticle(articles[newIndex]);
+    };
+
+    const handleNextArticle = () => {
+        const newIndex = selectedArticleIndex < articles.length - 1 ? selectedArticleIndex + 1 : 0;
+        setSelectedArticleIndex(newIndex);
+        setSelectedArticle(articles[newIndex]);
     };
 
     const renderSourceToggles = () => (
@@ -257,14 +272,14 @@ const NewsFeed = () => {
                 )}
             </div>
 
-            {/* News Modal */}
-            <NewsModal
+            <NewsModal 
                 article={selectedArticle}
                 visible={modalVisible}
-                onHide={() => {
-                    setModalVisible(false);
-                    setSelectedArticle(null);
-                }}
+                onHide={() => setModalVisible(false)}
+                onPrevious={handlePreviousArticle}
+                onNext={handleNextArticle}
+                currentIndex={selectedArticleIndex}
+                totalArticles={articles.length}
             />
         </div>
     );
